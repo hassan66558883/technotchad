@@ -3,7 +3,24 @@
 import QRCode from "qrcode";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { buildCertificateNumber, buildVerifyUrl } from "@/lib/certificate";
+import { buildCertificateNumber, buildInscriptionNumber, buildVerifyUrl } from "@/lib/certificate";
+
+function str(formData: FormData, key: string) {
+  const value = String(formData.get(key) ?? "").trim();
+  return value || undefined;
+}
+
+function int(formData: FormData, key: string) {
+  const value = str(formData, key);
+  if (!value) return undefined;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function date(formData: FormData, key: string) {
+  const value = str(formData, key);
+  return value ? new Date(value) : undefined;
+}
 
 export async function generateCertificate(registrationId: string) {
   const registration = await prisma.registration.findUnique({
@@ -54,20 +71,49 @@ export async function createStudent(
     return { error: "Adresse email invalide." };
   }
 
+  const ficheFields = {
+    dateOfBirth: date(formData, "dateOfBirth"),
+    placeOfBirth: str(formData, "placeOfBirth"),
+    nationality: str(formData, "nationality"),
+    gender: str(formData, "gender"),
+    address: str(formData, "address"),
+    educationLevel: str(formData, "educationLevel"),
+    lastDiploma: str(formData, "lastDiploma"),
+    institution: str(formData, "institution"),
+    profession: str(formData, "profession"),
+    emergencyContactName: str(formData, "emergencyContactName"),
+    emergencyContactRelation: str(formData, "emergencyContactRelation"),
+    emergencyContactPhone: str(formData, "emergencyContactPhone"),
+  };
+
   const student = await prisma.student.upsert({
     where: { email },
-    update: { firstName, lastName, phone },
-    create: { firstName, lastName, phone, email },
+    update: { firstName, lastName, phone, ...ficheFields },
+    create: { firstName, lastName, phone, email, ...ficheFields },
   });
 
   if (enrollment) {
     const [type, id] = enrollment.split(":");
+    const year = new Date().getFullYear();
+    const count = await prisma.registration.count({
+      where: { inscriptionNumber: { startsWith: `INSC-${year}-` } },
+    });
+
     await prisma.registration.create({
       data: {
         studentId: student.id,
         status: "CONFIRMED",
         courseSessionId: type === "course" ? id : undefined,
         workshopSlug: type === "workshop" ? id : undefined,
+        inscriptionNumber: buildInscriptionNumber(year, count + 1),
+        domain: str(formData, "domain"),
+        level: str(formData, "level"),
+        trainingMode: str(formData, "trainingMode"),
+        preferredSchedule: str(formData, "preferredSchedule"),
+        paymentAmount: int(formData, "paymentAmount"),
+        paidAmount: int(formData, "paidAmount"),
+        paymentMethod: str(formData, "paymentMethod"),
+        documentsProvided: str(formData, "documentsProvided"),
       },
     });
     revalidatePath("/admin/inscriptions");

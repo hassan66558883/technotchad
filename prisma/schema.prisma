@@ -36,6 +36,20 @@ model Student {
   photoUrl  String?
   createdAt DateTime @default(now())
 
+  // Fiche d'inscription — informations personnelles & académiques
+  dateOfBirth              DateTime?
+  placeOfBirth              String?
+  nationality                String?
+  gender                     String? // M | F
+  address                    String?
+  educationLevel             String?
+  lastDiploma                String?
+  institution                String?
+  profession                 String?
+  emergencyContactName       String?
+  emergencyContactRelation   String?
+  emergencyContactPhone      String?
+
   registrations Registration[]
   certificates  Certificate[]
 }
@@ -107,6 +121,17 @@ model Registration {
   workshop        Workshop? @relation(fields: [workshopSlug], references: [slug])
   status          String  @default("PENDING")
   registeredAt    DateTime @default(now())
+
+  // Fiche d'inscription — formation choisie, logistique & paiement
+  inscriptionNumber String? @unique
+  domain            String?
+  level             String? // Débutant | Intermédiaire | Avancé
+  trainingMode      String? // Présentiel | En ligne | Hybride
+  preferredSchedule String? // Matin | Après-midi | Soir
+  paymentAmount     Int?
+  paidAmount        Int?
+  paymentMethod     String?
+  documentsProvided String? // comma-separated
 
   attendance  Attendance[]
   payments    Payment[]

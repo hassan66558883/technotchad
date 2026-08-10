@@ -6,3 +6,7 @@ export function buildVerifyUrl(certificateNumber: string) {
 export function buildCertificateNumber(year: number, sequence: number) {
   return `CERT-${year}-${String(sequence).padStart(5, "0")}`;
 }
+
+export function buildInscriptionNumber(year: number, sequence: number) {
+  return `INSC-${year}-${String(sequence).padStart(5, "0")}`;
+}

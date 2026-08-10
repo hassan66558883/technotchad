@@ -81,20 +81,28 @@ export default async function StudentDetailPage({
                   </p>
                 </div>
 
-                {reg.certificate ? (
+                <div className="flex items-center gap-3">
                   <Link
-                    href={`/verify/${reg.certificate.certificateNumber}`}
-                    className="rounded-full bg-emerald-100 px-4 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-200"
+                    href={`/admin/fiche/${reg.id}`}
+                    className="rounded-full border border-line px-4 py-1.5 text-xs font-semibold text-navy hover:border-blue hover:text-blue"
                   >
-                    ✓ Certificat {reg.certificate.certificateNumber}
+                    Fiche d&apos;inscription
                   </Link>
-                ) : reg.status === "CONFIRMED" ? (
-                  <GenerateCertificateButton registrationId={reg.id} />
-                ) : (
-                  <span className="text-xs text-slate/60">
-                    Confirmez l&apos;inscription pour émettre un certificat
-                  </span>
-                )}
+                  {reg.certificate ? (
+                    <Link
+                      href={`/verify/${reg.certificate.certificateNumber}`}
+                      className="rounded-full bg-emerald-100 px-4 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-200"
+                    >
+                      ✓ Certificat {reg.certificate.certificateNumber}
+                    </Link>
+                  ) : reg.status === "CONFIRMED" ? (
+                    <GenerateCertificateButton registrationId={reg.id} />
+                  ) : (
+                    <span className="text-xs text-slate/60">
+                      Confirmez l&apos;inscription pour émettre un certificat
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
           </div>

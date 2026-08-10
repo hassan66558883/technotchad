@@ -52,6 +52,7 @@ export default async function InscriptionsPage() {
                   <th className="px-6 py-3 font-semibold">Date</th>
                   <th className="px-6 py-3 font-semibold">Certificat</th>
                   <th className="px-6 py-3 font-semibold">Statut</th>
+                  <th className="px-6 py-3 font-semibold">Fiche</th>
                 </tr>
               </thead>
               <tbody>
@@ -73,6 +74,14 @@ export default async function InscriptionsPage() {
                     </td>
                     <td className="px-6 py-3.5">
                       <RegistrationStatusSelect id={reg.id} status={reg.status} />
+                    </td>
+                    <td className="px-6 py-3.5">
+                      <Link
+                        href={`/admin/fiche/${reg.id}`}
+                        className="text-xs font-semibold text-blue hover:text-blue-dark"
+                      >
+                        Voir →
+                      </Link>
                     </td>
                   </tr>
                 ))}
