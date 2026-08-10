@@ -1,5 +1,7 @@
+import "dotenv/config";
 import bcrypt from "bcryptjs";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import {
   formations,
@@ -21,7 +23,8 @@ const DEFAULT_ADMIN_EMAIL = "admin@technotchad.com";
 const DEFAULT_ADMIN_PASSWORD = "TechnoTchad2026!";
 const DEFAULT_ADMIN_NAME = "Hassan Ismail Nassour";
 
-const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL ?? "file:./dev.db" });
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 function parseFrenchDate(label: string): Date {

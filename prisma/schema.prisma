@@ -1,11 +1,6 @@
 // TechnoTchad Digital Platform — data model
-// Local dev runs on SQLite (zero setup). To move to PostgreSQL for
-// production: change `provider = "sqlite"` below to `provider = "postgresql"`,
-// set DATABASE_URL to a Postgres connection string in .env, swap the driver
-// adapter in src/lib/prisma.ts from @prisma/adapter-better-sqlite3 to
-// @prisma/adapter-pg, and run `prisma migrate dev` again. No model changes
-// are required — enums are intentionally modeled as strings so the schema
-// stays portable between the two.
+// Runs on PostgreSQL (Prisma Postgres). Enums are intentionally modeled as
+// strings rather than native Postgres enums to keep migrations simple.
 
 generator client {
   provider = "prisma-client"
@@ -13,7 +8,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 // --- Users & roles ------------------------------------------------------
