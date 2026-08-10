@@ -1,4 +1,5 @@
 import "dotenv/config";
+import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -19,9 +20,12 @@ import {
   companyFacts,
 } from "../src/lib/data";
 
-const DEFAULT_ADMIN_EMAIL = "admin@technotchad.com";
-const DEFAULT_ADMIN_PASSWORD = "TechnoTchad2026!";
-const DEFAULT_ADMIN_NAME = "Hassan Ismail Nassour";
+const DEFAULT_ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@technotchad.com";
+const DEFAULT_ADMIN_NAME = process.env.ADMIN_NAME ?? "Hassan Ismail Nassour";
+
+function generateRandomPassword() {
+  return crypto.randomBytes(12).toString("base64url");
+}
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -37,18 +41,28 @@ function parseFrenchDate(label: string): Date {
 }
 
 async function main() {
-  const passwordHash = await bcrypt.hash(DEFAULT_ADMIN_PASSWORD, 10);
-  await prisma.user.upsert({
-    where: { email: DEFAULT_ADMIN_EMAIL },
-    update: { name: DEFAULT_ADMIN_NAME },
-    create: {
-      name: DEFAULT_ADMIN_NAME,
-      email: DEFAULT_ADMIN_EMAIL,
-      password: passwordHash,
-      role: "SUPER_ADMIN",
-    },
-  });
-  console.log(`Admin user ready: ${DEFAULT_ADMIN_EMAIL} / ${DEFAULT_ADMIN_PASSWORD}`);
+  const existingAdmin = await prisma.user.findUnique({ where: { email: DEFAULT_ADMIN_EMAIL } });
+
+  if (existingAdmin) {
+    await prisma.user.update({
+      where: { email: DEFAULT_ADMIN_EMAIL },
+      data: { name: DEFAULT_ADMIN_NAME },
+    });
+    console.log(`Admin user already exists: ${DEFAULT_ADMIN_EMAIL} (password unchanged).`);
+  } else {
+    const adminPassword = process.env.ADMIN_PASSWORD ?? generateRandomPassword();
+    const passwordHash = await bcrypt.hash(adminPassword, 10);
+    await prisma.user.create({
+      data: {
+        name: DEFAULT_ADMIN_NAME,
+        email: DEFAULT_ADMIN_EMAIL,
+        password: passwordHash,
+        role: "SUPER_ADMIN",
+      },
+    });
+    console.log(`Admin user created: ${DEFAULT_ADMIN_EMAIL} / ${adminPassword}`);
+    console.log("Save this password now — it will not be shown again. Change it via the DB if lost.");
+  }
 
   const instructorNames = Array.from(new Set(formations.map((f) => f.instructor)));
   const instructors = new Map<string, string>();
