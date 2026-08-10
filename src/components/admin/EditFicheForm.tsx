@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { updateFiche } from "@/app/admin/(dashboard)/etudiants/actions";
 
@@ -39,7 +40,6 @@ type Props = {
     discountPercent: number | null;
     scholarshipPercent: number | null;
     paymentAmount: number | null;
-    paidAmount: number | null;
     paymentMethod: string | null;
     documentsProvided: string | null;
   };
@@ -153,14 +153,6 @@ export default function EditFicheForm({ registrationId, student, registration }:
             placeholder="Montant total (FCFA)"
             className={inputClass}
           />
-          <input
-            name="paidAmount"
-            type="number"
-            min="0"
-            defaultValue={registration.paidAmount ?? ""}
-            placeholder="Montant payé (FCFA)"
-            className={inputClass}
-          />
           <select name="paymentMethod" defaultValue={registration.paymentMethod ?? ""} className={inputClass}>
             <option value="">Mode de paiement</option>
             <option value="Espèces">Espèces</option>
@@ -175,6 +167,12 @@ export default function EditFicheForm({ registrationId, student, registration }:
             className={inputClass}
           />
         </div>
+        <p className="text-xs text-slate">
+          Le montant payé se calcule à partir des paiements enregistrés —{" "}
+          <Link href="/admin/paiements" className="font-semibold text-blue hover:text-blue-dark">
+            gérer les paiements →
+          </Link>
+        </p>
       </section>
 
       <section className="space-y-3">

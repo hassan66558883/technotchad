@@ -121,7 +121,9 @@ export async function createStudent(
             ?.course.title
         : (await prisma.workshop.findUnique({ where: { slug: id } }))?.title;
 
-    await prisma.registration.create({
+    const paymentMethod = str(formData, "paymentMethod");
+
+    const registration = await prisma.registration.create({
       data: {
         studentId: student.id,
         status: "CONFIRMED",
@@ -133,11 +135,23 @@ export async function createStudent(
         discountPercent: discountPercent(formData),
         scholarshipPercent: scholarshipPercent(formData),
         paymentAmount: int(formData, "paymentAmount"),
-        paidAmount: int(formData, "paidAmount"),
-        paymentMethod: str(formData, "paymentMethod"),
+        paymentMethod,
         documentsProvided: str(formData, "documentsProvided"),
       },
     });
+
+    const initialDeposit = int(formData, "paidAmount");
+    if (initialDeposit) {
+      await prisma.payment.create({
+        data: {
+          registrationId: registration.id,
+          amount: initialDeposit,
+          method: paymentMethod ?? "Espèces",
+          status: "PAID",
+          paidAt: new Date(),
+        },
+      });
+    }
 
     void sendMail({
       to: student.email,
@@ -151,6 +165,7 @@ export async function createStudent(
     });
 
     revalidatePath("/admin/inscriptions");
+    revalidatePath("/admin/paiements");
     revalidatePath("/admin");
   }
 
@@ -216,7 +231,6 @@ export async function updateFiche(
       discountPercent: discountPercent(formData) ?? null,
       scholarshipPercent: scholarshipPercent(formData) ?? null,
       paymentAmount: int(formData, "paymentAmount") ?? null,
-      paidAmount: int(formData, "paidAmount") ?? null,
       paymentMethod: str(formData, "paymentMethod") ?? null,
       documentsProvided: str(formData, "documentsProvided") ?? null,
     },

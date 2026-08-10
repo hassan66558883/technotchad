@@ -182,7 +182,8 @@ export default function CreateStudentForm({ enrollmentOptions }: { enrollmentOpt
             name="paidAmount"
             type="number"
             min="0"
-            placeholder="Montant payé (FCFA)"
+            placeholder="Acompte versé à l'inscription (FCFA)"
+            title="Enregistré comme premier paiement — les paiements suivants se gèrent depuis Paiements"
             className={inputClass}
           />
           <select name="paymentMethod" defaultValue="" className={inputClass}>

@@ -35,6 +35,7 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
       student: true,
       courseSession: { include: { course: true } },
       workshop: true,
+      payments: true,
     },
   });
 
@@ -42,10 +43,10 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
 
   const { student } = registration;
   const formationTitle = registration.courseSession?.course.title ?? registration.workshop?.title ?? "—";
-  const remaining =
-    registration.paymentAmount != null && registration.paidAmount != null
-      ? registration.paymentAmount - registration.paidAmount
-      : null;
+  const paidAmount = registration.payments
+    .filter((p) => p.status === "PAID")
+    .reduce((sum, p) => sum + p.amount, 0);
+  const remaining = registration.paymentAmount != null ? registration.paymentAmount - paidAmount : null;
 
   const qrCodeUrl = registration.inscriptionNumber
     ? await QRCode.toDataURL(buildInscriptionVerifyUrl(registration.inscriptionNumber), {
@@ -141,10 +142,16 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
               value={registration.scholarshipPercent != null ? `${registration.scholarshipPercent}%` : "—"}
             />
             <Field label="Montant total" value={formatMoney(registration.paymentAmount)} />
-            <Field label="Montant payé" value={formatMoney(registration.paidAmount)} />
+            <Field label="Montant payé" value={formatMoney(paidAmount)} />
             <Field label="Reste à payer" value={formatMoney(remaining)} />
             <Field label="Mode de paiement" value={registration.paymentMethod ?? "—"} />
           </dl>
+          <Link
+            href="/admin/paiements"
+            className="mt-3 inline-block text-xs font-semibold text-blue hover:text-blue-dark print:hidden"
+          >
+            Gérer les paiements →
+          </Link>
         </section>
 
         <section className="mt-6">
