@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendMail, getAdminNotificationEmail } from "@/lib/email";
 
 const serviceOptions = new Set([
   "Site web",
@@ -54,6 +55,37 @@ export async function POST(request: Request) {
       budget: typeof budget === "string" && budget.trim() ? budget.trim() : null,
       message: message.trim(),
     },
+  });
+
+  const adminEmail = getAdminNotificationEmail();
+  if (adminEmail) {
+    void sendMail({
+      to: adminEmail,
+      subject: `Nouvelle demande de devis — ${quoteRequest.name}`,
+      replyTo: quoteRequest.email,
+      html: `
+        <h2>Nouvelle demande de devis</h2>
+        <p><strong>Nom :</strong> ${quoteRequest.name}</p>
+        ${quoteRequest.company ? `<p><strong>Entreprise :</strong> ${quoteRequest.company}</p>` : ""}
+        <p><strong>Téléphone :</strong> ${quoteRequest.phone}</p>
+        <p><strong>Email :</strong> ${quoteRequest.email}</p>
+        <p><strong>Service :</strong> ${quoteRequest.serviceType}</p>
+        ${quoteRequest.budget ? `<p><strong>Budget :</strong> ${quoteRequest.budget}</p>` : ""}
+        <p><strong>Message :</strong></p>
+        <p>${quoteRequest.message.replace(/\n/g, "<br />")}</p>
+      `,
+    });
+  }
+
+  void sendMail({
+    to: quoteRequest.email,
+    subject: "Nous avons bien reçu votre demande — TechnoTchad",
+    html: `
+      <p>Bonjour ${quoteRequest.name},</p>
+      <p>Nous avons bien reçu votre demande concernant <strong>${quoteRequest.serviceType}</strong>.
+      Notre équipe vous recontactera très prochainement au ${quoteRequest.phone}.</p>
+      <p>Merci de votre confiance,<br />L'équipe TechnoTchad</p>
+    `,
   });
 
   return NextResponse.json({ id: quoteRequest.id }, { status: 201 });

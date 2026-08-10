@@ -4,6 +4,7 @@ import QRCode from "qrcode";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { buildCertificateNumber, buildInscriptionNumber, buildVerifyUrl } from "@/lib/certificate";
+import { sendMail } from "@/lib/email";
 
 function str(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
@@ -74,7 +75,6 @@ export async function createStudent(
   const ficheFields = {
     dateOfBirth: date(formData, "dateOfBirth"),
     placeOfBirth: str(formData, "placeOfBirth"),
-    nationality: str(formData, "nationality"),
     gender: str(formData, "gender"),
     address: str(formData, "address"),
     educationLevel: str(formData, "educationLevel"),
@@ -98,6 +98,13 @@ export async function createStudent(
     const count = await prisma.registration.count({
       where: { inscriptionNumber: { startsWith: `INSC-${year}-` } },
     });
+    const inscriptionNumber = buildInscriptionNumber(year, count + 1);
+
+    const formationTitle =
+      type === "course"
+        ? (await prisma.courseSession.findUnique({ where: { id }, include: { course: true } }))
+            ?.course.title
+        : (await prisma.workshop.findUnique({ where: { slug: id } }))?.title;
 
     await prisma.registration.create({
       data: {
@@ -105,7 +112,7 @@ export async function createStudent(
         status: "CONFIRMED",
         courseSessionId: type === "course" ? id : undefined,
         workshopSlug: type === "workshop" ? id : undefined,
-        inscriptionNumber: buildInscriptionNumber(year, count + 1),
+        inscriptionNumber,
         domain: str(formData, "domain"),
         level: str(formData, "level"),
         trainingMode: str(formData, "trainingMode"),
@@ -116,9 +123,92 @@ export async function createStudent(
         documentsProvided: str(formData, "documentsProvided"),
       },
     });
+
+    void sendMail({
+      to: student.email,
+      subject: `Confirmation d'inscription — ${inscriptionNumber}`,
+      html: `
+        <p>Bonjour ${student.firstName},</p>
+        <p>Votre inscription${formationTitle ? ` à <strong>${formationTitle}</strong>` : ""} a bien été enregistrée.</p>
+        <p><strong>Numéro d'inscription :</strong> ${inscriptionNumber}</p>
+        <p>Merci de votre confiance,<br />L'équipe TechnoTchad</p>
+      `,
+    });
+
     revalidatePath("/admin/inscriptions");
     revalidatePath("/admin");
   }
 
   revalidatePath("/admin/etudiants");
+}
+
+export type UpdateFicheState = { error?: string } | undefined;
+
+export async function updateFiche(
+  registrationId: string,
+  _prevState: UpdateFicheState,
+  formData: FormData,
+): Promise<UpdateFicheState> {
+  const registration = await prisma.registration.findUnique({
+    where: { id: registrationId },
+    select: { studentId: true },
+  });
+  if (!registration) return { error: "Fiche introuvable." };
+
+  const firstName = String(formData.get("firstName") ?? "").trim();
+  const lastName = String(formData.get("lastName") ?? "").trim();
+  const phone = String(formData.get("phone") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+
+  if (!firstName || !lastName || !phone || !email) {
+    return { error: "Merci de remplir le prénom, le nom, le téléphone et l'email." };
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { error: "Adresse email invalide." };
+  }
+
+  const existing = await prisma.student.findUnique({ where: { email } });
+  if (existing && existing.id !== registration.studentId) {
+    return { error: "Cet email est déjà utilisé par un autre étudiant." };
+  }
+
+  await prisma.student.update({
+    where: { id: registration.studentId },
+    data: {
+      firstName,
+      lastName,
+      phone,
+      email,
+      dateOfBirth: date(formData, "dateOfBirth") ?? null,
+      placeOfBirth: str(formData, "placeOfBirth") ?? null,
+      gender: str(formData, "gender") ?? null,
+      address: str(formData, "address") ?? null,
+      educationLevel: str(formData, "educationLevel") ?? null,
+      lastDiploma: str(formData, "lastDiploma") ?? null,
+      institution: str(formData, "institution") ?? null,
+      profession: str(formData, "profession") ?? null,
+      emergencyContactName: str(formData, "emergencyContactName") ?? null,
+      emergencyContactRelation: str(formData, "emergencyContactRelation") ?? null,
+      emergencyContactPhone: str(formData, "emergencyContactPhone") ?? null,
+    },
+  });
+
+  await prisma.registration.update({
+    where: { id: registrationId },
+    data: {
+      domain: str(formData, "domain") ?? null,
+      level: str(formData, "level") ?? null,
+      trainingMode: str(formData, "trainingMode") ?? null,
+      preferredSchedule: str(formData, "preferredSchedule") ?? null,
+      paymentAmount: int(formData, "paymentAmount") ?? null,
+      paidAmount: int(formData, "paidAmount") ?? null,
+      paymentMethod: str(formData, "paymentMethod") ?? null,
+      documentsProvided: str(formData, "documentsProvided") ?? null,
+    },
+  });
+
+  revalidatePath("/admin/etudiants");
+  revalidatePath(`/admin/etudiants/${registration.studentId}`);
+  revalidatePath(`/admin/fiche/${registrationId}`);
+  revalidatePath("/admin/inscriptions");
 }

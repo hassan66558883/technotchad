@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import QRCode from "qrcode";
 import { prisma } from "@/lib/prisma";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 import { canAccessPath } from "@/lib/permissions";
+import { buildInscriptionVerifyUrl } from "@/lib/certificate";
 import PrintButton from "@/components/admin/PrintButton";
 
 function formatDate(date: Date | null | undefined) {
@@ -45,17 +47,22 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
       ? registration.paymentAmount - registration.paidAmount
       : null;
 
-  const qrPayload = [
-    `Fiche d'inscription TechnoTchad`,
-    registration.inscriptionNumber ?? id,
-    `${student.firstName} ${student.lastName}`,
-    student.phone,
-  ].join("\n");
-  const qrCodeUrl = await QRCode.toDataURL(qrPayload, { margin: 1, width: 160 });
+  const qrCodeUrl = registration.inscriptionNumber
+    ? await QRCode.toDataURL(buildInscriptionVerifyUrl(registration.inscriptionNumber), {
+        margin: 1,
+        width: 160,
+      })
+    : null;
 
   return (
     <div className="mx-auto max-w-3xl bg-mist p-6 print:bg-white print:p-0">
-      <div className="mb-4 flex justify-end print:hidden">
+      <div className="mb-4 flex justify-end gap-3 print:hidden">
+        <Link
+          href={`/admin/fiche/${id}/edit`}
+          className="rounded-full border border-line bg-white px-5 py-2.5 text-sm font-semibold text-navy hover:border-blue hover:text-blue"
+        >
+          Modifier
+        </Link>
         <PrintButton />
       </div>
 
@@ -72,10 +79,12 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
           </div>
         </header>
 
-        <div className="mt-4 flex justify-end">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={qrCodeUrl} alt="QR code de la fiche" className="h-24 w-24" />
-        </div>
+        {qrCodeUrl && (
+          <div className="mt-4 flex justify-end">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={qrCodeUrl} alt="QR code de vérification" className="h-24 w-24" />
+          </div>
+        )}
 
         <section className="mt-6">
           <h2 className="rounded bg-mist px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-navy print:bg-transparent print:border print:border-navy">
@@ -85,7 +94,6 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
             <Field label="Nom complet" value={`${student.firstName} ${student.lastName}`} />
             <Field label="Date de naissance" value={formatDate(student.dateOfBirth)} />
             <Field label="Lieu de naissance" value={student.placeOfBirth ?? "—"} />
-            <Field label="Nationalité" value={student.nationality ?? "—"} />
             <Field label="Sexe" value={student.gender ? genderLabels[student.gender] ?? student.gender : "—"} />
             <Field label="Téléphone" value={student.phone} />
             <Field label="Email" value={student.email} />
