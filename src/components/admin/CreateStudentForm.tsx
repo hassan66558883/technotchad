@@ -8,15 +8,40 @@ type Option = { value: string; label: string; price: number | null };
 const inputClass =
   "rounded-lg border border-line px-4 py-2.5 text-sm outline-none focus:border-blue";
 
+const MAX_DISCOUNT_PERCENT = 20;
+
+function clampDiscount(value: number) {
+  if (!Number.isFinite(value)) return 0;
+  return Math.min(Math.max(Math.round(value), 0), MAX_DISCOUNT_PERCENT);
+}
+
 export default function CreateStudentForm({ enrollmentOptions }: { enrollmentOptions: Option[] }) {
   const [state, formAction, isPending] = useActionState(createStudent, undefined);
   const paymentAmountRef = useRef<HTMLInputElement>(null);
+  const discountRef = useRef<HTMLInputElement>(null);
+  const basePriceRef = useRef<number | null>(null);
+
+  function applyPrice() {
+    if (!paymentAmountRef.current) return;
+    const basePrice = basePriceRef.current;
+    if (basePrice == null) {
+      paymentAmountRef.current.value = "";
+      return;
+    }
+    const discount = clampDiscount(Number(discountRef.current?.value ?? 0));
+    paymentAmountRef.current.value = String(Math.round(basePrice * (1 - discount / 100)));
+  }
 
   function handleEnrollmentChange(event: React.ChangeEvent<HTMLSelectElement>) {
     const selected = enrollmentOptions.find((option) => option.value === event.target.value);
-    if (paymentAmountRef.current) {
-      paymentAmountRef.current.value = selected?.price != null ? String(selected.price) : "";
-    }
+    basePriceRef.current = selected?.price ?? null;
+    applyPrice();
+  }
+
+  function handleDiscountChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const clamped = clampDiscount(Number(event.target.value));
+    event.target.value = event.target.value === "" ? "" : String(clamped);
+    applyPrice();
   }
 
   return (
@@ -115,12 +140,22 @@ export default function CreateStudentForm({ enrollmentOptions }: { enrollmentOpt
             <option value="Hybride">Hybride</option>
           </select>
           <input
+            name="discountPercent"
+            ref={discountRef}
+            type="number"
+            min="0"
+            max={MAX_DISCOUNT_PERCENT}
+            placeholder={`Remise (% — max ${MAX_DISCOUNT_PERCENT})`}
+            onChange={handleDiscountChange}
+            className={inputClass}
+          />
+          <input
             name="paymentAmount"
             ref={paymentAmountRef}
             type="number"
             min="0"
             placeholder="Montant total (FCFA)"
-            title="Pré-rempli depuis le tarif de la formation — modifiable"
+            title="Pré-rempli depuis le tarif de la formation et la remise — modifiable"
             className={inputClass}
           />
           <input

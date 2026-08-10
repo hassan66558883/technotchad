@@ -129,6 +129,10 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
           </h2>
           <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
             <Field label="Mode de formation" value={registration.trainingMode ?? "—"} />
+            <Field
+              label="Remise"
+              value={registration.discountPercent != null ? `${registration.discountPercent}%` : "—"}
+            />
             <Field label="Montant total" value={formatMoney(registration.paymentAmount)} />
             <Field label="Montant payé" value={formatMoney(registration.paidAmount)} />
             <Field label="Reste à payer" value={formatMoney(remaining)} />

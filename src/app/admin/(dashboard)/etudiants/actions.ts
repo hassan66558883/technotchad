@@ -23,6 +23,14 @@ function date(formData: FormData, key: string) {
   return value ? new Date(value) : undefined;
 }
 
+const MAX_DISCOUNT_PERCENT = 20;
+
+function discountPercent(formData: FormData) {
+  const value = int(formData, "discountPercent");
+  if (value === undefined) return undefined;
+  return Math.min(Math.max(value, 0), MAX_DISCOUNT_PERCENT);
+}
+
 export async function generateCertificate(registrationId: string) {
   const registration = await prisma.registration.findUnique({
     where: { id: registrationId },
@@ -115,6 +123,7 @@ export async function createStudent(
         inscriptionNumber,
         level: str(formData, "level"),
         trainingMode: str(formData, "trainingMode"),
+        discountPercent: discountPercent(formData),
         paymentAmount: int(formData, "paymentAmount"),
         paidAmount: int(formData, "paidAmount"),
         paymentMethod: str(formData, "paymentMethod"),
@@ -196,6 +205,7 @@ export async function updateFiche(
     data: {
       level: str(formData, "level") ?? null,
       trainingMode: str(formData, "trainingMode") ?? null,
+      discountPercent: discountPercent(formData) ?? null,
       paymentAmount: int(formData, "paymentAmount") ?? null,
       paidAmount: int(formData, "paidAmount") ?? null,
       paymentMethod: str(formData, "paymentMethod") ?? null,

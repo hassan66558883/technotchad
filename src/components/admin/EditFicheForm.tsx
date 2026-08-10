@@ -6,6 +6,8 @@ import { updateFiche } from "@/app/admin/(dashboard)/etudiants/actions";
 const inputClass =
   "rounded-lg border border-line px-4 py-2.5 text-sm outline-none focus:border-blue";
 
+const MAX_DISCOUNT_PERCENT = 20;
+
 function toDateInputValue(value: Date | null) {
   if (!value) return "";
   return value.toISOString().slice(0, 10);
@@ -33,6 +35,7 @@ type Props = {
   registration: {
     level: string | null;
     trainingMode: string | null;
+    discountPercent: number | null;
     paymentAmount: number | null;
     paidAmount: number | null;
     paymentMethod: string | null;
@@ -122,6 +125,15 @@ export default function EditFicheForm({ registrationId, student, registration }:
             <option value="En ligne">En ligne</option>
             <option value="Hybride">Hybride</option>
           </select>
+          <input
+            name="discountPercent"
+            type="number"
+            min="0"
+            max={MAX_DISCOUNT_PERCENT}
+            defaultValue={registration.discountPercent ?? ""}
+            placeholder={`Remise (% — max ${MAX_DISCOUNT_PERCENT})`}
+            className={inputClass}
+          />
           <input
             name="paymentAmount"
             type="number"
