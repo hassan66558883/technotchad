@@ -68,10 +68,12 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
 
       <div className="rounded-2xl border border-line bg-white p-10 shadow-sm print:rounded-none print:border-0 print:p-0 print:shadow-none">
         <header className="flex items-start justify-between border-b-2 border-navy pb-4">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col items-center gap-1">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo-full.png" alt="TechnoTchad" className="h-14 w-auto" />
-            <p className="text-sm font-semibold text-navy">Centre de Formation TechnoTchad</p>
+            <p className="mt-2 text-center text-sm font-semibold text-navy">
+              Centre de Formation TechnoTchad
+            </p>
           </div>
           <div className="text-right">
             <h1 className="text-lg font-bold text-navy">FICHE D&apos;INSCRIPTION ÉTUDIANT</h1>
