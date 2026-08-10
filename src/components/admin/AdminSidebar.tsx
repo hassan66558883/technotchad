@@ -46,8 +46,8 @@ const menu: { section: string; items: { label: string; href: string }[] }[] = [
   {
     section: "Système",
     items: [
-      { label: "Utilisateurs", href: "#" },
-      { label: "Rôles", href: "#" },
+      { label: "Utilisateurs", href: "/admin/utilisateurs" },
+      { label: "Rôles", href: "/admin/roles" },
       { label: "Paramètres", href: "/admin/parametres" },
       { label: "Médias", href: "#" },
       { label: "Sauvegardes", href: "#" },

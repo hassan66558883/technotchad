@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { logout } from "@/app/admin/(dashboard)/actions";
 
 export default function AdminTopbar({ name }: { name: string }) {
@@ -10,12 +11,12 @@ export default function AdminTopbar({ name }: { name: string }) {
         <p className="text-xs text-slate">Vue d&apos;ensemble de la plateforme</p>
       </div>
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
+        <Link href="/admin/compte" className="flex items-center gap-2 hover:opacity-80">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue text-xs font-bold text-white">
             {initial}
           </span>
           <span className="text-sm font-semibold text-navy">{name}</span>
-        </div>
+        </Link>
         <form action={logout}>
           <button
             type="submit"
