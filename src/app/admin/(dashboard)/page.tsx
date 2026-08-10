@@ -23,7 +23,12 @@ function formatDate(date: Date) {
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({
+  searchParams,
+}: PageProps<"/admin">) {
+  const params = await searchParams;
+  const denied = params.denied === "1";
+
   const [messageCount, studentCount, courseCount, workshopCount, registrations] =
     await Promise.all([
       prisma.quoteRequest.count(),
@@ -53,6 +58,12 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
+      {denied && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-3.5 text-sm text-amber-800">
+          Vous n&apos;avez pas accès à cette section avec votre rôle actuel.
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {statCards.map((card) => {
           const content = (

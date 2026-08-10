@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
+import { canAccessPath, hasAnyAdminAccess } from "@/lib/permissions";
 
 export async function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname === "/admin/login") {
+  const { pathname } = request.nextUrl;
+
+  if (pathname === "/admin/login") {
     return NextResponse.next();
   }
 
@@ -12,6 +15,14 @@ export async function middleware(request: NextRequest) {
 
   if (!session) {
     return NextResponse.redirect(new URL("/admin/login", request.url));
+  }
+
+  if (!hasAnyAdminAccess(session.role)) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  if (!canAccessPath(session.role, pathname)) {
+    return NextResponse.redirect(new URL("/admin?denied=1", request.url));
   }
 
   return NextResponse.next();

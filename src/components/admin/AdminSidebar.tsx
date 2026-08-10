@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { canAccessPath } from "@/lib/permissions";
 
 const menu: { section: string; items: { label: string; href: string }[] }[] = [
   {
@@ -56,8 +57,15 @@ const menu: { section: string; items: { label: string; href: string }[] }[] = [
   },
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ role }: { role: string }) {
   const pathname = usePathname();
+
+  const visibleMenu = menu
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => canAccessPath(role, item.href)),
+    }))
+    .filter((group) => group.items.length > 0);
 
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-white/10 bg-navy text-white lg:flex">
@@ -78,7 +86,7 @@ export default function AdminSidebar() {
           📊 Dashboard
         </Link>
 
-        {menu.map((group) => (
+        {visibleMenu.map((group) => (
           <div key={group.section}>
             <p className="px-3 text-xs font-bold uppercase tracking-widest text-white/40">
               {group.section}
