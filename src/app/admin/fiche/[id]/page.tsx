@@ -71,6 +71,7 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
           <div className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo-full.png" alt="TechnoTchad" className="h-14 w-auto" />
+            <p className="text-sm font-semibold text-navy">Centre de Formation TechnoTchad</p>
           </div>
           <div className="text-right">
             <h1 className="text-lg font-bold text-navy">FICHE D&apos;INSCRIPTION ÉTUDIANT</h1>
