@@ -113,10 +113,8 @@ export async function createStudent(
         courseSessionId: type === "course" ? id : undefined,
         workshopSlug: type === "workshop" ? id : undefined,
         inscriptionNumber,
-        domain: str(formData, "domain"),
         level: str(formData, "level"),
         trainingMode: str(formData, "trainingMode"),
-        preferredSchedule: str(formData, "preferredSchedule"),
         paymentAmount: int(formData, "paymentAmount"),
         paidAmount: int(formData, "paidAmount"),
         paymentMethod: str(formData, "paymentMethod"),
@@ -196,10 +194,8 @@ export async function updateFiche(
   await prisma.registration.update({
     where: { id: registrationId },
     data: {
-      domain: str(formData, "domain") ?? null,
       level: str(formData, "level") ?? null,
       trainingMode: str(formData, "trainingMode") ?? null,
-      preferredSchedule: str(formData, "preferredSchedule") ?? null,
       paymentAmount: int(formData, "paymentAmount") ?? null,
       paidAmount: int(formData, "paidAmount") ?? null,
       paymentMethod: str(formData, "paymentMethod") ?? null,

@@ -85,8 +85,7 @@ export default function CreateStudentForm({ enrollmentOptions }: { enrollmentOpt
               </option>
             ))}
           </select>
-          <input name="domain" placeholder="Domaine (ex : BMS, Réseaux…)" className={inputClass} />
-          <select name="level" defaultValue="" className={inputClass}>
+          <select name="level" defaultValue="" className={`${inputClass} sm:col-span-2`}>
             <option value="">Niveau</option>
             <option value="Débutant">Débutant</option>
             <option value="Intermédiaire">Intermédiaire</option>
@@ -100,17 +99,11 @@ export default function CreateStudentForm({ enrollmentOptions }: { enrollmentOpt
           4. Logistique & paiement
         </h3>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <select name="trainingMode" defaultValue="" className={inputClass}>
+          <select name="trainingMode" defaultValue="" className={`${inputClass} sm:col-span-2`}>
             <option value="">Mode de formation</option>
             <option value="Présentiel">Présentiel</option>
             <option value="En ligne">En ligne</option>
             <option value="Hybride">Hybride</option>
-          </select>
-          <select name="preferredSchedule" defaultValue="" className={inputClass}>
-            <option value="">Horaire préféré</option>
-            <option value="Matin">Matin</option>
-            <option value="Après-midi">Après-midi</option>
-            <option value="Soir">Soir</option>
           </select>
           <input
             name="paymentAmount"

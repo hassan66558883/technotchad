@@ -31,10 +31,8 @@ type Props = {
     emergencyContactPhone: string | null;
   };
   registration: {
-    domain: string | null;
     level: string | null;
     trainingMode: string | null;
-    preferredSchedule: string | null;
     paymentAmount: number | null;
     paidAmount: number | null;
     paymentMethod: string | null;
@@ -104,8 +102,7 @@ export default function EditFicheForm({ registrationId, student, registration }:
           3. Formation choisie
         </h3>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <input name="domain" defaultValue={registration.domain ?? ""} placeholder="Domaine (ex : BMS, Réseaux…)" className={inputClass} />
-          <select name="level" defaultValue={registration.level ?? ""} className={inputClass}>
+          <select name="level" defaultValue={registration.level ?? ""} className={`${inputClass} sm:col-span-2`}>
             <option value="">Niveau</option>
             <option value="Débutant">Débutant</option>
             <option value="Intermédiaire">Intermédiaire</option>
@@ -119,17 +116,11 @@ export default function EditFicheForm({ registrationId, student, registration }:
           4. Logistique & paiement
         </h3>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <select name="trainingMode" defaultValue={registration.trainingMode ?? ""} className={inputClass}>
+          <select name="trainingMode" defaultValue={registration.trainingMode ?? ""} className={`${inputClass} sm:col-span-2`}>
             <option value="">Mode de formation</option>
             <option value="Présentiel">Présentiel</option>
             <option value="En ligne">En ligne</option>
             <option value="Hybride">Hybride</option>
-          </select>
-          <select name="preferredSchedule" defaultValue={registration.preferredSchedule ?? ""} className={inputClass}>
-            <option value="">Horaire préféré</option>
-            <option value="Matin">Matin</option>
-            <option value="Après-midi">Après-midi</option>
-            <option value="Soir">Soir</option>
           </select>
           <input
             name="paymentAmount"
