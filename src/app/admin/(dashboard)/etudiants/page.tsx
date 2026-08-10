@@ -1,17 +1,41 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import CreateStudentForm from "@/components/admin/CreateStudentForm";
 
 export const metadata = { title: "Étudiants — Admin TechnoTchad" };
 export const dynamic = "force-dynamic";
 
+function formatDate(date: Date) {
+  return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date);
+}
+
 export default async function EtudiantsPage() {
-  const students = await prisma.student.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      registrations: true,
-      certificates: true,
-    },
-  });
+  const [students, sessions, workshops] = await Promise.all([
+    prisma.student.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { registrations: true, certificates: true },
+    }),
+    prisma.courseSession.findMany({
+      where: { status: "UPCOMING" },
+      include: { course: true },
+      orderBy: { startDate: "asc" },
+    }),
+    prisma.workshop.findMany({
+      where: { status: "UPCOMING" },
+      orderBy: { date: "asc" },
+    }),
+  ]);
+
+  const enrollmentOptions = [
+    ...sessions.map((s) => ({
+      value: `course:${s.id}`,
+      label: `${s.course.title} — ${formatDate(s.startDate)}`,
+    })),
+    ...workshops.map((w) => ({
+      value: `workshop:${w.slug}`,
+      label: `${w.title} (workshop) — ${formatDate(w.date)}`,
+    })),
+  ];
 
   return (
     <div className="space-y-6">
@@ -23,11 +47,13 @@ export default async function EtudiantsPage() {
         </p>
       </div>
 
+      <CreateStudentForm enrollmentOptions={enrollmentOptions} />
+
       {students.length === 0 ? (
         <div className="rounded-2xl border border-line bg-white p-12 text-center shadow-sm">
           <p className="text-sm text-slate">
-            Aucun étudiant pour le moment. Les inscriptions faites depuis le
-            site public créent automatiquement un profil étudiant.
+            Aucun étudiant pour le moment. Ajoutez-en un ci-dessus, ou laissez les
+            inscriptions faites depuis le site public créer un profil automatiquement.
           </p>
         </div>
       ) : (
