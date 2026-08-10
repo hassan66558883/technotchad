@@ -1,15 +1,23 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import { createStudent } from "@/app/admin/(dashboard)/etudiants/actions";
 
-type Option = { value: string; label: string };
+type Option = { value: string; label: string; price: number | null };
 
 const inputClass =
   "rounded-lg border border-line px-4 py-2.5 text-sm outline-none focus:border-blue";
 
 export default function CreateStudentForm({ enrollmentOptions }: { enrollmentOptions: Option[] }) {
   const [state, formAction, isPending] = useActionState(createStudent, undefined);
+  const paymentAmountRef = useRef<HTMLInputElement>(null);
+
+  function handleEnrollmentChange(event: React.ChangeEvent<HTMLSelectElement>) {
+    const selected = enrollmentOptions.find((option) => option.value === event.target.value);
+    if (paymentAmountRef.current) {
+      paymentAmountRef.current.value = selected?.price != null ? String(selected.price) : "";
+    }
+  }
 
   return (
     <form
@@ -76,6 +84,7 @@ export default function CreateStudentForm({ enrollmentOptions }: { enrollmentOpt
           <select
             name="enrollment"
             defaultValue=""
+            onChange={handleEnrollmentChange}
             className={`${inputClass} sm:col-span-2`}
           >
             <option value="">Aucune inscription pour le moment</option>
@@ -107,9 +116,11 @@ export default function CreateStudentForm({ enrollmentOptions }: { enrollmentOpt
           </select>
           <input
             name="paymentAmount"
+            ref={paymentAmountRef}
             type="number"
             min="0"
             placeholder="Montant total (FCFA)"
+            title="Pré-rempli depuis le tarif de la formation — modifiable"
             className={inputClass}
           />
           <input

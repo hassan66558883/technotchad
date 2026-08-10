@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { parsePriceToNumber } from "@/lib/format";
 import CreateStudentForm from "@/components/admin/CreateStudentForm";
 
 export const metadata = { title: "Étudiants — Admin TechnoTchad" };
@@ -30,10 +31,12 @@ export default async function EtudiantsPage() {
     ...sessions.map((s) => ({
       value: `course:${s.id}`,
       label: `${s.course.title} — ${formatDate(s.startDate)}`,
+      price: parsePriceToNumber(s.course.price),
     })),
     ...workshops.map((w) => ({
       value: `workshop:${w.slug}`,
       label: `${w.title} (workshop) — ${formatDate(w.date)}`,
+      price: null as number | null,
     })),
   ];
 
