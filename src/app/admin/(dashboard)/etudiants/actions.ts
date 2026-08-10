@@ -24,11 +24,18 @@ function date(formData: FormData, key: string) {
 }
 
 const MAX_DISCOUNT_PERCENT = 20;
+const MAX_SCHOLARSHIP_PERCENT = 100;
 
 function discountPercent(formData: FormData) {
   const value = int(formData, "discountPercent");
   if (value === undefined) return undefined;
   return Math.min(Math.max(value, 0), MAX_DISCOUNT_PERCENT);
+}
+
+function scholarshipPercent(formData: FormData) {
+  const value = int(formData, "scholarshipPercent");
+  if (value === undefined) return undefined;
+  return Math.min(Math.max(value, 0), MAX_SCHOLARSHIP_PERCENT);
 }
 
 export async function generateCertificate(registrationId: string) {
@@ -124,6 +131,7 @@ export async function createStudent(
         level: str(formData, "level"),
         trainingMode: str(formData, "trainingMode"),
         discountPercent: discountPercent(formData),
+        scholarshipPercent: scholarshipPercent(formData),
         paymentAmount: int(formData, "paymentAmount"),
         paidAmount: int(formData, "paidAmount"),
         paymentMethod: str(formData, "paymentMethod"),
@@ -206,6 +214,7 @@ export async function updateFiche(
       level: str(formData, "level") ?? null,
       trainingMode: str(formData, "trainingMode") ?? null,
       discountPercent: discountPercent(formData) ?? null,
+      scholarshipPercent: scholarshipPercent(formData) ?? null,
       paymentAmount: int(formData, "paymentAmount") ?? null,
       paidAmount: int(formData, "paidAmount") ?? null,
       paymentMethod: str(formData, "paymentMethod") ?? null,

@@ -9,16 +9,18 @@ const inputClass =
   "rounded-lg border border-line px-4 py-2.5 text-sm outline-none focus:border-blue";
 
 const MAX_DISCOUNT_PERCENT = 20;
+const MAX_SCHOLARSHIP_PERCENT = 100;
 
-function clampDiscount(value: number) {
+function clampPercent(value: number, max: number) {
   if (!Number.isFinite(value)) return 0;
-  return Math.min(Math.max(Math.round(value), 0), MAX_DISCOUNT_PERCENT);
+  return Math.min(Math.max(Math.round(value), 0), max);
 }
 
 export default function CreateStudentForm({ enrollmentOptions }: { enrollmentOptions: Option[] }) {
   const [state, formAction, isPending] = useActionState(createStudent, undefined);
   const paymentAmountRef = useRef<HTMLInputElement>(null);
   const discountRef = useRef<HTMLInputElement>(null);
+  const scholarshipRef = useRef<HTMLInputElement>(null);
   const basePriceRef = useRef<number | null>(null);
 
   function applyPrice() {
@@ -28,8 +30,10 @@ export default function CreateStudentForm({ enrollmentOptions }: { enrollmentOpt
       paymentAmountRef.current.value = "";
       return;
     }
-    const discount = clampDiscount(Number(discountRef.current?.value ?? 0));
-    paymentAmountRef.current.value = String(Math.round(basePrice * (1 - discount / 100)));
+    const discount = clampPercent(Number(discountRef.current?.value ?? 0), MAX_DISCOUNT_PERCENT);
+    const scholarship = clampPercent(Number(scholarshipRef.current?.value ?? 0), MAX_SCHOLARSHIP_PERCENT);
+    const amount = basePrice * (1 - discount / 100) * (1 - scholarship / 100);
+    paymentAmountRef.current.value = String(Math.round(amount));
   }
 
   function handleEnrollmentChange(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -39,7 +43,13 @@ export default function CreateStudentForm({ enrollmentOptions }: { enrollmentOpt
   }
 
   function handleDiscountChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const clamped = clampDiscount(Number(event.target.value));
+    const clamped = clampPercent(Number(event.target.value), MAX_DISCOUNT_PERCENT);
+    event.target.value = event.target.value === "" ? "" : String(clamped);
+    applyPrice();
+  }
+
+  function handleScholarshipChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const clamped = clampPercent(Number(event.target.value), MAX_SCHOLARSHIP_PERCENT);
     event.target.value = event.target.value === "" ? "" : String(clamped);
     applyPrice();
   }
@@ -147,6 +157,16 @@ export default function CreateStudentForm({ enrollmentOptions }: { enrollmentOpt
             max={MAX_DISCOUNT_PERCENT}
             placeholder={`Remise (% — max ${MAX_DISCOUNT_PERCENT})`}
             onChange={handleDiscountChange}
+            className={inputClass}
+          />
+          <input
+            name="scholarshipPercent"
+            ref={scholarshipRef}
+            type="number"
+            min="0"
+            max={MAX_SCHOLARSHIP_PERCENT}
+            placeholder="Bourse (%)"
+            onChange={handleScholarshipChange}
             className={inputClass}
           />
           <input

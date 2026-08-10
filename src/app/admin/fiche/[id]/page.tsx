@@ -133,6 +133,10 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
               label="Remise"
               value={registration.discountPercent != null ? `${registration.discountPercent}%` : "—"}
             />
+            <Field
+              label="Bourse"
+              value={registration.scholarshipPercent != null ? `${registration.scholarshipPercent}%` : "—"}
+            />
             <Field label="Montant total" value={formatMoney(registration.paymentAmount)} />
             <Field label="Montant payé" value={formatMoney(registration.paidAmount)} />
             <Field label="Reste à payer" value={formatMoney(remaining)} />

@@ -129,6 +129,7 @@ model Registration {
   trainingMode      String? // Présentiel | En ligne | Hybride
   preferredSchedule String? // Matin | Après-midi | Soir
   discountPercent   Int?
+  scholarshipPercent Int?
   paymentAmount     Int?
   paidAmount        Int?
   paymentMethod     String?

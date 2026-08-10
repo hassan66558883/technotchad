@@ -7,6 +7,7 @@ const inputClass =
   "rounded-lg border border-line px-4 py-2.5 text-sm outline-none focus:border-blue";
 
 const MAX_DISCOUNT_PERCENT = 20;
+const MAX_SCHOLARSHIP_PERCENT = 100;
 
 function toDateInputValue(value: Date | null) {
   if (!value) return "";
@@ -36,6 +37,7 @@ type Props = {
     level: string | null;
     trainingMode: string | null;
     discountPercent: number | null;
+    scholarshipPercent: number | null;
     paymentAmount: number | null;
     paidAmount: number | null;
     paymentMethod: string | null;
@@ -132,6 +134,15 @@ export default function EditFicheForm({ registrationId, student, registration }:
             max={MAX_DISCOUNT_PERCENT}
             defaultValue={registration.discountPercent ?? ""}
             placeholder={`Remise (% — max ${MAX_DISCOUNT_PERCENT})`}
+            className={inputClass}
+          />
+          <input
+            name="scholarshipPercent"
+            type="number"
+            min="0"
+            max={MAX_SCHOLARSHIP_PERCENT}
+            defaultValue={registration.scholarshipPercent ?? ""}
+            placeholder="Bourse (%)"
             className={inputClass}
           />
           <input
