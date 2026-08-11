@@ -29,31 +29,42 @@ export default async function AdminDashboardPage({
   const params = await searchParams;
   const denied = params.denied === "1";
 
-  const [messageCount, studentCount, courseCount, workshopCount, registrations] =
-    await Promise.all([
-      prisma.quoteRequest.count(),
-      prisma.student.count(),
-      prisma.course.count(),
-      prisma.workshop.count(),
-      prisma.registration.findMany({
-        orderBy: { registeredAt: "desc" },
-        take: 5,
-        include: {
-          student: true,
-          courseSession: { include: { course: true } },
-          workshop: true,
-        },
-      }),
-    ]);
+  const [
+    messageCount,
+    studentCount,
+    courseCount,
+    workshopCount,
+    projectCount,
+    serviceCount,
+    articleCount,
+    registrations,
+  ] = await Promise.all([
+    prisma.quoteRequest.count(),
+    prisma.student.count(),
+    prisma.course.count(),
+    prisma.workshop.count(),
+    prisma.project.count(),
+    prisma.service.count(),
+    prisma.article.count(),
+    prisma.registration.findMany({
+      orderBy: { registeredAt: "desc" },
+      take: 5,
+      include: {
+        student: true,
+        courseSession: { include: { course: true } },
+        workshop: true,
+      },
+    }),
+  ]);
 
   const statCards = [
     { label: "Étudiants", value: studentCount, icon: "🎓", href: "/admin/etudiants" },
     { label: "Formations", value: courseCount, icon: "📚" },
     { label: "Workshops", value: workshopCount, icon: "🛠️" },
     { label: "Demandes de devis", value: messageCount, icon: "✉️", href: "/admin/demandes-devis" },
-    { label: "Projets", value: 38, icon: "🏗️" },
-    { label: "Services", value: 10, icon: "⚙️" },
-    { label: "Articles", value: 24, icon: "📰" },
+    { label: "Projets", value: projectCount, icon: "🏗️" },
+    { label: "Services", value: serviceCount, icon: "⚙️" },
+    { label: "Articles", value: articleCount, icon: "📰" },
   ];
 
   return (
