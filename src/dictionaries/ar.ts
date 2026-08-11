@@ -1,6 +1,14 @@
 import type fr from "./fr";
 
 const ar: typeof fr = {
+  meta: {
+    siteTitle: "تكنوتشاد – شريككم التكنولوجي في تشاد",
+    siteDescription:
+      "ترافق تكنوتشاد الشركات والمؤسسات والأفراد في مشاريعهم المعلوماتية والرقمية والأمنية والتكوينية.",
+    verifyPrefix: "التحقق",
+    projectFallback: "مشروع",
+    articleFallback: "مقال",
+  },
   nav: {
     home: "الرئيسية",
     company: "الشركة",

@@ -17,8 +17,9 @@ function formatDate(date: Date, lang: Locale) {
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/verify/[number]">) {
-  const { number } = await params;
-  return { title: `Vérification ${number} — TechnoTchad` };
+  const { lang, number } = await params;
+  const prefix = isLocale(lang) ? (await getDictionary(lang)).meta.verifyPrefix : "Vérification";
+  return { title: `${prefix} ${number} — TechnoTchad` };
 }
 
 export default async function VerifyCertificatePage({

@@ -9,12 +9,14 @@ import { getDictionary } from "@/dictionaries";
 import { isLocale } from "@/i18n/config";
 import { localeHref } from "@/lib/locale-link";
 
-export const metadata = {
-  title: "Formations — TechnoTchad",
-  description: "Toutes les formations professionnelles proposées par TechnoTchad.",
-};
-
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: PageProps<"/[lang]/formations">) {
+  const { lang } = await params;
+  if (!isLocale(lang)) return {};
+  const dict = await getDictionary(lang);
+  return { title: `${dict.pages.formations.eyebrow} — TechnoTchad`, description: dict.pages.formations.description };
+}
 
 export default async function FormationsPage({ params }: PageProps<"/[lang]/formations">) {
   const { lang } = await params;

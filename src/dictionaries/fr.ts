@@ -1,4 +1,12 @@
 const fr = {
+  meta: {
+    siteTitle: "TechnoTchad — Votre partenaire technologique au Tchad",
+    siteDescription:
+      "TechnoTchad accompagne les entreprises, institutions et particuliers dans leurs projets informatiques, numériques, de sécurité et de formation.",
+    verifyPrefix: "Vérification",
+    projectFallback: "Projet",
+    articleFallback: "Article",
+  },
   nav: {
     home: "Accueil",
     company: "Entreprise",

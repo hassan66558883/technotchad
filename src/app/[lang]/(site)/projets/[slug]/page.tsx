@@ -9,9 +9,11 @@ import { localeHref } from "@/lib/locale-link";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/projets/[slug]">) {
-  const { slug } = await params;
+  const { lang, slug } = await params;
   const project = await prisma.project.findUnique({ where: { slug } });
-  return { title: project ? `${project.title} — TechnoTchad` : "Projet — TechnoTchad" };
+  if (project) return { title: `${project.title} — TechnoTchad` };
+  const fallback = isLocale(lang) ? (await getDictionary(lang)).meta.projectFallback : "Projet";
+  return { title: `${fallback} — TechnoTchad` };
 }
 
 export default async function ProjectDetailPage({

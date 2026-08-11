@@ -7,7 +7,12 @@ import { getDictionary } from "@/dictionaries";
 import { isLocale } from "@/i18n/config";
 import { localeHref } from "@/lib/locale-link";
 
-export const metadata = { title: "Inscription — TechnoTchad" };
+export async function generateMetadata({ params }: PageProps<"/[lang]/inscription">) {
+  const { lang } = await params;
+  if (!isLocale(lang)) return {};
+  const dict = await getDictionary(lang);
+  return { title: `${dict.pages.inscription.eyebrow} — TechnoTchad` };
+}
 
 export default async function InscriptionPage({
   params,

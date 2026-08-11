@@ -1,6 +1,14 @@
 import type fr from "./fr";
 
 const en: typeof fr = {
+  meta: {
+    siteTitle: "TechnoTchad — Your technology partner in Chad",
+    siteDescription:
+      "TechnoTchad supports companies, institutions and individuals in their IT, digital, security and training projects.",
+    verifyPrefix: "Verification",
+    projectFallback: "Project",
+    articleFallback: "Article",
+  },
   nav: {
     home: "Home",
     company: "Company",

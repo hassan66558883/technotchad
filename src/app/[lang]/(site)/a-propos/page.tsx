@@ -6,12 +6,14 @@ import { getSettings, splitLines, ABOUT_SETTING_KEYS } from "@/lib/settings";
 import { getDictionary } from "@/dictionaries";
 import { isLocale } from "@/i18n/config";
 
-export const metadata = {
-  title: "À propos — TechnoTchad",
-  description: "Vision, mission, valeurs et équipe de TechnoTchad.",
-};
-
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: PageProps<"/[lang]/a-propos">) {
+  const { lang } = await params;
+  if (!isLocale(lang)) return {};
+  const dict = await getDictionary(lang);
+  return { title: `${dict.nav.company} — TechnoTchad`, description: dict.meta.siteDescription };
+}
 
 export default async function AProposPage({ params }: PageProps<"/[lang]/a-propos">) {
   const { lang } = await params;

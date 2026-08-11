@@ -7,12 +7,14 @@ import { getDictionary } from "@/dictionaries";
 import { isLocale } from "@/i18n/config";
 import { localeHref } from "@/lib/locale-link";
 
-export const metadata = {
-  title: "Services — TechnoTchad",
-  description: "Toutes les solutions technologiques proposées par TechnoTchad.",
-};
-
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: PageProps<"/[lang]/services">) {
+  const { lang } = await params;
+  if (!isLocale(lang)) return {};
+  const dict = await getDictionary(lang);
+  return { title: `${dict.pages.services.eyebrow} — TechnoTchad`, description: dict.pages.services.description };
+}
 
 export default async function ServicesPage({ params }: PageProps<"/[lang]/services">) {
   const { lang } = await params;

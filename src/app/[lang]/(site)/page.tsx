@@ -14,6 +14,13 @@ import Testimonials from "@/components/home/Testimonials";
 import News from "@/components/home/News";
 import ContactCta from "@/components/home/ContactCta";
 
+export async function generateMetadata({ params }: PageProps<"/[lang]">) {
+  const { lang } = await params;
+  if (!isLocale(lang)) return {};
+  const dict = await getDictionary(lang);
+  return { title: dict.meta.siteTitle, description: dict.meta.siteDescription };
+}
+
 export default async function HomePage({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();

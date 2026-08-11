@@ -16,9 +16,11 @@ function formatDate(date: Date | null, lang: Locale) {
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/actualites/[slug]">) {
-  const { slug } = await params;
+  const { lang, slug } = await params;
   const article = await prisma.article.findUnique({ where: { slug } });
-  return { title: article ? `${article.title} — TechnoTchad` : "Article — TechnoTchad" };
+  if (article) return { title: `${article.title} — TechnoTchad` };
+  const fallback = isLocale(lang) ? (await getDictionary(lang)).meta.articleFallback : "Article";
+  return { title: `${fallback} — TechnoTchad` };
 }
 
 export default async function ArticleDetailPage({
