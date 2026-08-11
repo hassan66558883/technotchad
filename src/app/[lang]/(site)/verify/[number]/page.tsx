@@ -6,7 +6,7 @@ import { isLocale, type Locale } from "@/i18n/config";
 
 export const dynamic = "force-dynamic";
 
-const dateLocales: Record<Locale, string> = { fr: "fr-FR", en: "en-US", ar: "ar" };
+const dateLocales: Record<Locale, string> = { fr: "fr-FR", ar: "ar" };
 
 function formatDate(date: Date, lang: Locale) {
   return new Intl.DateTimeFormat(dateLocales[lang], {

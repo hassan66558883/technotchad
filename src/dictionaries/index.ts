@@ -6,7 +6,6 @@ export type Dictionary = typeof fr;
 
 const dictionaries: Record<Locale, () => Promise<Dictionary>> = {
   fr: () => Promise.resolve(fr),
-  en: () => import("./en").then((m) => m.default),
   ar: () => import("./ar").then((m) => m.default),
 };
 
