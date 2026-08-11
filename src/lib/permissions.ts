@@ -40,7 +40,6 @@ export const ROLE_PATHS: Record<string, "*" | string[]> = {
     "/admin/presences",
     "/admin/paiements",
     "/admin/certificats",
-    "/admin/demandes-devis",
   ],
   ACCOUNTANT: ["/admin/compte", "/admin/paiements"],
   EDITOR: ["/admin/compte", ...CONTENT_PATHS],
