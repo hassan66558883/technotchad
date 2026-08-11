@@ -1,8 +1,9 @@
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { prisma } from "@/lib/prisma";
+import type { Dictionary } from "@/dictionaries";
 
-export default async function Testimonials() {
+export default async function Testimonials({ dict }: { dict: Dictionary }) {
   const testimonials = await prisma.testimonial.findMany({
     where: { approved: true },
     orderBy: { publishedAt: "desc" },
@@ -14,7 +15,7 @@ export default async function Testimonials() {
   return (
     <section className="bg-mist py-20 sm:py-24">
       <Container>
-        <SectionHeading eyebrow="Témoignages" title="Ce qu'ils en disent" />
+        <SectionHeading eyebrow={dict.home.testimonials.eyebrow} title={dict.home.testimonials.title} />
 
         <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
           {testimonials.map((t) => (

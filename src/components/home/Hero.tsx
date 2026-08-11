@@ -1,35 +1,36 @@
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
+import { localeHref } from "@/lib/locale-link";
+import type { Locale } from "@/i18n/config";
+import type { Dictionary } from "@/dictionaries";
 
-const chips = [
-  { label: "Réseau", icon: "🌐" },
-  { label: "CCTV", icon: "📹" },
-  { label: "Cloud", icon: "☁️" },
-  { label: "Base de données", icon: "🗄️" },
-  { label: "IA", icon: "🤖" },
-];
+export default function Hero({ lang, dict }: { lang: Locale; dict: Dictionary }) {
+  const chips = [
+    { label: dict.home.hero.chips.network, icon: "🌐" },
+    { label: dict.home.hero.chips.cctv, icon: "📹" },
+    { label: dict.home.hero.chips.cloud, icon: "☁️" },
+    { label: dict.home.hero.chips.database, icon: "🗄️" },
+    { label: dict.home.hero.chips.ai, icon: "🤖" },
+  ];
 
-export default function Hero() {
   return (
     <section className="relative overflow-hidden bg-hero-gradient text-white">
       <div className="bg-grid absolute inset-0 opacity-40" />
       <Container className="relative grid grid-cols-1 items-center gap-12 py-20 sm:py-28 lg:grid-cols-2">
         <div>
           <span className="inline-flex items-center rounded-full border border-cyan/30 bg-cyan/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-cyan">
-            Technologie • Formation • Innovation • Sécurité
+            {dict.home.hero.badge}
           </span>
           <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
-            Nous transformons la technologie en solutions pour votre entreprise.
+            {dict.home.hero.title}
           </h1>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-white/70">
-            TechnoTchad accompagne les entreprises, institutions et particuliers
-            dans leurs projets informatiques, numériques, de sécurité et de
-            formation.
+            {dict.home.hero.description}
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
-            <Button href="/services">Découvrir nos services</Button>
-            <Button href="/formations" variant="ghost">
-              Voir nos formations
+            <Button href={localeHref(lang, "/services")}>{dict.home.hero.ctaServices}</Button>
+            <Button href={localeHref(lang, "/formations")} variant="ghost">
+              {dict.home.hero.ctaFormations}
             </Button>
           </div>
         </div>

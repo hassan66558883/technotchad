@@ -1,10 +1,11 @@
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { prisma } from "@/lib/prisma";
+import type { Dictionary } from "@/dictionaries";
 
 const icons = ["🎯", "👨‍🏫", "🏛️", "💻", "🇬🇧", "🤝"];
 
-export default async function WhyUs() {
+export default async function WhyUs({ dict }: { dict: Dictionary }) {
   const whyUs = await prisma.companyValue.findMany({
     where: { type: "WHY_US" },
     orderBy: { order: "asc" },
@@ -13,7 +14,7 @@ export default async function WhyUs() {
   return (
     <section className="bg-mist py-20 sm:py-24">
       <Container>
-        <SectionHeading eyebrow="Notre différence" title="Pourquoi choisir TechnoTchad ?" />
+        <SectionHeading eyebrow={dict.home.whyUs.eyebrow} title={dict.home.whyUs.title} />
 
         <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {whyUs.map((item, i) => (

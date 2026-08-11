@@ -1,7 +1,11 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { prisma } from "@/lib/prisma";
+import { getDictionary } from "@/dictionaries";
+import { isLocale } from "@/i18n/config";
+import { localeHref } from "@/lib/locale-link";
 
 export const metadata = {
   title: "Services — TechnoTchad",
@@ -10,7 +14,12 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function ServicesPage() {
+export default async function ServicesPage({ params }: PageProps<"/[lang]/services">) {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+  const dict = await getDictionary(lang);
+  const p = dict.pages.services;
+
   const services = await prisma.service.findMany({ orderBy: { order: "asc" } });
 
   return (
@@ -18,21 +27,18 @@ export default async function ServicesPage() {
       <section className="bg-hero-gradient py-16 text-white sm:py-20">
         <Container>
           <span className="text-xs font-bold uppercase tracking-widest text-cyan">
-            Services
+            {p.eyebrow}
           </span>
           <h1 className="mt-3 max-w-2xl text-4xl font-bold tracking-tight">
-            Des solutions technologiques complètes pour votre organisation
+            {p.title}
           </h1>
-          <p className="mt-4 max-w-xl text-white/70">
-            Du réseau à la sécurité, du logiciel à la formation : TechnoTchad
-            couvre l&apos;ensemble de vos besoins IT.
-          </p>
+          <p className="mt-4 max-w-xl text-white/70">{p.description}</p>
         </Container>
       </section>
 
       <section className="bg-white py-20 sm:py-24">
         <Container>
-          <SectionHeading title="Nos services" align="left" />
+          <SectionHeading title={p.sectionTitle} align="left" />
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {services.map((service) => (
               <div
@@ -50,10 +56,10 @@ export default async function ServicesPage() {
                   {service.description}
                 </p>
                 <Link
-                  href="/#contact"
+                  href={localeHref(lang, "/#contact")}
                   className="mt-5 inline-flex text-sm font-semibold text-blue hover:text-blue-dark"
                 >
-                  Demander un devis →
+                  {p.requestQuote}
                 </Link>
               </div>
             ))}

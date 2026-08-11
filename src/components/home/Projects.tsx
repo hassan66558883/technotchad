@@ -2,24 +2,27 @@ import Link from "next/link";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { prisma } from "@/lib/prisma";
+import { localeHref } from "@/lib/locale-link";
+import type { Locale } from "@/i18n/config";
+import type { Dictionary } from "@/dictionaries";
 
-export default async function Projects() {
+export default async function Projects({ lang, dict }: { lang: Locale; dict: Dictionary }) {
   const projects = await prisma.project.findMany({ orderBy: { order: "asc" } });
 
   return (
     <section id="projets" className="scroll-mt-20 bg-white py-20 sm:py-24">
       <Container>
         <SectionHeading
-          eyebrow="Réalisations"
-          title="Nos réalisations"
-          description="Un aperçu de projets menés pour des entreprises et institutions au Tchad."
+          eyebrow={dict.home.projects.eyebrow}
+          title={dict.home.projects.title}
+          description={dict.home.projects.description}
         />
 
         <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {projects.map((project) => (
             <Link
               key={project.slug}
-              href={`/projets/${project.slug}`}
+              href={localeHref(lang, `/projets/${project.slug}`)}
               className="group overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition-shadow hover:shadow-lg"
             >
               <div className="flex h-32 items-center justify-center bg-navy-2 text-4xl text-white">
@@ -41,10 +44,10 @@ export default async function Projects() {
 
         <div className="mt-12 text-center">
           <Link
-            href="/projets"
+            href={localeHref(lang, "/projets")}
             className="text-sm font-semibold text-blue hover:text-blue-dark"
           >
-            Voir tous les projets →
+            {dict.common.seeAllProjects}
           </Link>
         </div>
       </Container>

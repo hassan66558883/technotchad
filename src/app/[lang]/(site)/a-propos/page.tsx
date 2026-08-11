@@ -1,7 +1,10 @@
+import { notFound } from "next/navigation";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { prisma } from "@/lib/prisma";
 import { getSettings, splitLines, ABOUT_SETTING_KEYS } from "@/lib/settings";
+import { getDictionary } from "@/dictionaries";
+import { isLocale } from "@/i18n/config";
 
 export const metadata = {
   title: "À propos — TechnoTchad",
@@ -10,7 +13,12 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function AProposPage() {
+export default async function AProposPage({ params }: PageProps<"/[lang]/a-propos">) {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+  const dict = await getDictionary(lang);
+  const p = dict.pages.aPropos;
+
   const [settings, companyValues, team, partners] = await Promise.all([
     getSettings(ABOUT_SETTING_KEYS),
     prisma.companyValue.findMany({ where: { type: "VALUE" }, orderBy: { order: "asc" } }),
@@ -28,10 +36,10 @@ export default async function AProposPage() {
       <section className="bg-hero-gradient py-16 text-white sm:py-20">
         <Container>
           <span className="text-xs font-bold uppercase tracking-widest text-cyan">
-            Entreprise · Depuis {settings.about_founded_year}
+            {p.badgePrefix} {settings.about_founded_year}
           </span>
           <h1 className="mt-3 max-w-2xl text-4xl font-bold tracking-tight">
-            Qui sommes-nous ?
+            {p.title}
           </h1>
           <p className="mt-4 max-w-2xl text-white/70">{settings.about_intro}</p>
         </Container>
@@ -41,7 +49,7 @@ export default async function AProposPage() {
         <Container className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           <div className="rounded-2xl border border-line bg-mist p-8">
             <h2 className="text-sm font-bold uppercase tracking-wide text-blue">
-              Notre vision
+              {p.visionTitle}
             </h2>
             <ul className="mt-4 space-y-3">
               {vision.map((item) => (
@@ -54,7 +62,7 @@ export default async function AProposPage() {
           </div>
           <div className="rounded-2xl border border-line bg-mist p-8">
             <h2 className="text-sm font-bold uppercase tracking-wide text-blue">
-              Notre mission
+              {p.missionTitle}
             </h2>
             <ul className="mt-4 space-y-3">
               {mission.map((item) => (
@@ -72,10 +80,10 @@ export default async function AProposPage() {
         <Container className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
           <div>
             <span className="text-xs font-bold uppercase tracking-widest text-blue">
-              Localisation
+              {p.locationEyebrow}
             </span>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-navy">
-              Un cadre idéal à N&apos;Djaména
+              {p.locationTitle}
             </h2>
             <p className="mt-4 text-base leading-relaxed text-slate">
               {settings.about_location_description}
@@ -83,7 +91,7 @@ export default async function AProposPage() {
           </div>
           <div className="rounded-2xl border border-line bg-white p-8 shadow-sm">
             <h3 className="text-sm font-bold uppercase tracking-wide text-blue">
-              Infrastructures
+              {p.infrastructureTitle}
             </h3>
             <ul className="mt-4 space-y-3">
               {infrastructure.map((item) => (
@@ -101,10 +109,10 @@ export default async function AProposPage() {
         <Container className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           <div>
             <span className="text-xs font-bold uppercase tracking-widest text-blue">
-              Enseignants & pédagogie
+              {p.teachingEyebrow}
             </span>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-navy">
-              Un corps enseignant exigeant, une pédagogie pratique
+              {p.teachingTitle}
             </h2>
             <p className="mt-4 text-base leading-relaxed text-slate">
               {settings.about_teaching_intro}
@@ -112,7 +120,7 @@ export default async function AProposPage() {
           </div>
           <div className="rounded-2xl border border-line bg-mist p-8">
             <h3 className="text-sm font-bold uppercase tracking-wide text-blue">
-              Méthodes pédagogiques
+              {p.teachingMethodsTitle}
             </h3>
             <ul className="mt-4 space-y-3">
               {teachingMethods.map((item) => (
@@ -128,7 +136,7 @@ export default async function AProposPage() {
 
       <section className="bg-mist py-20 sm:py-24">
         <Container>
-          <SectionHeading eyebrow="Nos valeurs" title="Ce qui nous guide au quotidien" />
+          <SectionHeading eyebrow={p.valuesEyebrow} title={p.valuesTitle} />
           <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {companyValues.map((value) => (
               <div
@@ -149,7 +157,7 @@ export default async function AProposPage() {
 
       <section className="bg-white py-20 sm:py-24">
         <Container>
-          <SectionHeading eyebrow="Notre équipe" title="Les personnes derrière TechnoTchad" />
+          <SectionHeading eyebrow={p.teamEyebrow} title={p.teamTitle} />
           <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {team.map((member) => (
               <div
@@ -172,7 +180,7 @@ export default async function AProposPage() {
       <section className="border-t border-line bg-mist py-16">
         <Container>
           <p className="text-center text-xs font-bold uppercase tracking-widest text-slate">
-            Nos partenaires
+            {p.partnersTitle}
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             {partners.map((partner) => (

@@ -1,15 +1,18 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import type { Dictionary } from "@/dictionaries";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
 export default function RegistrationForm({
   type,
   slug,
+  dict,
 }: {
   type: "course" | "workshop";
   slug: string;
+  dict: Dictionary["pages"]["registrationForm"];
 }) {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -33,7 +36,7 @@ export default function RegistrationForm({
       const body = await response.json().catch(() => null);
 
       if (!response.ok) {
-        setErrorMessage(body?.error ?? "Une erreur est survenue. Merci de réessayer.");
+        setErrorMessage(body?.error ?? dict.defaultError);
         setStatus("error");
         return;
       }
@@ -42,7 +45,7 @@ export default function RegistrationForm({
       form.reset();
       setStatus("success");
     } catch {
-      setErrorMessage("Impossible d'envoyer votre inscription. Vérifiez votre connexion.");
+      setErrorMessage(dict.networkError);
       setStatus("error");
     }
   }
@@ -52,11 +55,12 @@ export default function RegistrationForm({
       <div className="rounded-2xl border border-line bg-emerald-50 p-8 text-center">
         <span className="text-3xl">✅</span>
         <h2 className="mt-3 text-lg font-semibold text-navy">
-          Inscription enregistrée
+          {dict.successTitle}
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-slate">
-          Votre demande d&apos;inscription {confirmedLabel && `à « ${confirmedLabel} » `}
-          a bien été reçue. Notre équipe vous contactera pour confirmer votre place.
+          {confirmedLabel
+            ? dict.successTextWithLabel.replace("{label}", confirmedLabel)
+            : dict.successTextNoLabel}
         </p>
       </div>
     );
@@ -70,28 +74,28 @@ export default function RegistrationForm({
           required
           minLength={2}
           className="rounded-lg border border-line px-4 py-3 text-sm outline-none focus:border-blue"
-          placeholder="Prénom"
+          placeholder={dict.firstName}
         />
         <input
           name="lastName"
           required
           minLength={2}
           className="rounded-lg border border-line px-4 py-3 text-sm outline-none focus:border-blue"
-          placeholder="Nom"
+          placeholder={dict.lastName}
         />
         <input
           name="phone"
           required
           minLength={6}
           className="rounded-lg border border-line px-4 py-3 text-sm outline-none focus:border-blue"
-          placeholder="Téléphone"
+          placeholder={dict.phone}
         />
         <input
           name="email"
           required
           type="email"
           className="rounded-lg border border-line px-4 py-3 text-sm outline-none focus:border-blue"
-          placeholder="Email"
+          placeholder={dict.email}
         />
       </div>
 
@@ -106,7 +110,7 @@ export default function RegistrationForm({
         disabled={status === "submitting"}
         className="mt-5 w-full rounded-full bg-blue px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-blue-dark disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {status === "submitting" ? "ENVOI EN COURS…" : "CONFIRMER MON INSCRIPTION"}
+        {status === "submitting" ? dict.submitting : dict.submit}
       </button>
     </form>
   );

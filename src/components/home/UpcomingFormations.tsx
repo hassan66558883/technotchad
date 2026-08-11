@@ -2,8 +2,11 @@ import Link from "next/link";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { getUpcomingSessions, formatSessionDate } from "@/lib/formations-data";
+import { localeHref } from "@/lib/locale-link";
+import type { Locale } from "@/i18n/config";
+import type { Dictionary } from "@/dictionaries";
 
-export default async function UpcomingFormations() {
+export default async function UpcomingFormations({ lang, dict }: { lang: Locale; dict: Dictionary }) {
   const sessions = await getUpcomingSessions(3);
 
   if (sessions.length === 0) return null;
@@ -13,16 +16,16 @@ export default async function UpcomingFormations() {
       <Container>
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <SectionHeading
-            eyebrow="Formations"
-            title="Formations à venir"
-            description="Des sessions pratiques animées par des formateurs expérimentés."
+            eyebrow={dict.home.formations.eyebrow}
+            title={dict.home.formations.title}
+            description={dict.home.formations.description}
             align="left"
           />
           <Link
-            href="/formations"
+            href={localeHref(lang, "/formations")}
             className="shrink-0 text-sm font-semibold text-blue hover:text-blue-dark"
           >
-            Voir toutes les formations →
+            {dict.common.seeAllFormations}
           </Link>
         </div>
 
@@ -50,23 +53,23 @@ export default async function UpcomingFormations() {
                   <li>
                     👥{" "}
                     {session.seatsLeft > 0
-                      ? `${session.seatsLeft} places restantes`
-                      : "Complet"}
+                      ? dict.common.seatsLeft(session.seatsLeft)
+                      : dict.common.full}
                   </li>
                 </ul>
 
                 <div className="mt-6 flex gap-3">
                   <Link
-                    href={`/formations#${session.course.slug}`}
+                    href={localeHref(lang, `/formations#${session.course.slug}`)}
                     className="flex-1 rounded-full border border-line px-4 py-2.5 text-center text-sm font-semibold text-navy hover:border-blue hover:text-blue"
                   >
-                    Voir détails
+                    {dict.common.seeDetails}
                   </Link>
                   <Link
-                    href={`/inscription?type=course&slug=${session.course.slug}`}
+                    href={localeHref(lang, `/inscription?type=course&slug=${session.course.slug}`)}
                     className="flex-1 rounded-full bg-blue px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-blue-dark"
                   >
-                    S&apos;inscrire
+                    {dict.common.register}
                   </Link>
                 </div>
               </div>

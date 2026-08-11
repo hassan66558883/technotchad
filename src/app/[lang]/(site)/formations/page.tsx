@@ -1,9 +1,13 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { prisma } from "@/lib/prisma";
 import { getUpcomingSessions, formatSessionDate } from "@/lib/formations-data";
 import { getSettings } from "@/lib/settings";
+import { getDictionary } from "@/dictionaries";
+import { isLocale } from "@/i18n/config";
+import { localeHref } from "@/lib/locale-link";
 
 export const metadata = {
   title: "Formations — TechnoTchad",
@@ -12,7 +16,12 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function FormationsPage() {
+export default async function FormationsPage({ params }: PageProps<"/[lang]/formations">) {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+  const dict = await getDictionary(lang);
+  const p = dict.pages.formations;
+
   const [filieres, sessions, settings] = await Promise.all([
     prisma.filiere.findMany({ orderBy: { order: "asc" } }),
     getUpcomingSessions(),
@@ -24,24 +33,21 @@ export default async function FormationsPage() {
       <section className="bg-hero-gradient py-16 text-white sm:py-20">
         <Container>
           <span className="text-xs font-bold uppercase tracking-widest text-cyan">
-            Formations
+            {p.eyebrow}
           </span>
           <h1 className="mt-3 max-w-2xl text-4xl font-bold tracking-tight">
-            Des formations pratiques pour développer vos compétences
+            {p.title}
           </h1>
-          <p className="mt-4 max-w-xl text-white/70">
-            Bureautique, réseaux, CCTV, Odoo, cybersécurité, intelligence
-            artificielle — animées par des formateurs expérimentés.
-          </p>
+          <p className="mt-4 max-w-xl text-white/70">{p.description}</p>
         </Container>
       </section>
 
       <section className="bg-white py-20 sm:py-24">
         <Container>
           <SectionHeading
-            eyebrow="Notre catalogue"
-            title="Nos filières"
-            description="TechnoTchad offre une gamme variée de formations réparties en plusieurs filières."
+            eyebrow={p.catalogEyebrow}
+            title={p.catalogTitle}
+            description={p.catalogDescription}
             align="left"
           />
 
@@ -75,12 +81,10 @@ export default async function FormationsPage() {
 
       <section className="bg-mist py-20 sm:py-24">
         <Container>
-          <SectionHeading title="Sessions à venir" align="left" />
+          <SectionHeading title={p.upcomingSessionsTitle} align="left" />
 
           {sessions.length === 0 ? (
-            <p className="mt-10 text-sm text-slate">
-              Aucune session à venir pour le moment. Revenez bientôt !
-            </p>
+            <p className="mt-10 text-sm text-slate">{p.noSessions}</p>
           ) : (
             <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {sessions.map((session) => (
@@ -111,8 +115,8 @@ export default async function FormationsPage() {
                       <li>
                         👥{" "}
                         {session.seatsLeft > 0
-                          ? `${session.seatsLeft} / ${session.seats} places restantes`
-                          : "Complet"}
+                          ? p.seatsLeftOf(session.seatsLeft, session.seats)
+                          : dict.common.full}
                       </li>
                       <li className="font-semibold text-navy">
                         💰 {session.course.price}
@@ -120,10 +124,10 @@ export default async function FormationsPage() {
                     </ul>
 
                     <Link
-                      href={`/inscription?type=course&slug=${session.course.slug}`}
+                      href={localeHref(lang, `/inscription?type=course&slug=${session.course.slug}`)}
                       className="mt-6 rounded-full bg-blue px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-blue-dark"
                     >
-                      S&apos;inscrire
+                      {dict.common.register}
                     </Link>
                   </div>
                 </div>
@@ -136,7 +140,7 @@ export default async function FormationsPage() {
       <section className="bg-white py-16 sm:py-20">
         <Container className="max-w-3xl text-center">
           <span className="text-xs font-bold uppercase tracking-widest text-blue">
-            Conditions d&apos;admission
+            {p.admissionEyebrow}
           </span>
           <p className="mt-4 text-base leading-relaxed text-slate">
             {settings.about_admission}

@@ -2,13 +2,18 @@ import Link from "next/link";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { prisma } from "@/lib/prisma";
+import { localeHref } from "@/lib/locale-link";
+import type { Locale } from "@/i18n/config";
+import type { Dictionary } from "@/dictionaries";
 
-function formatDate(date: Date | null) {
+const dateLocales: Record<Locale, string> = { fr: "fr-FR", en: "en-US", ar: "ar" };
+
+function formatDate(date: Date | null, lang: Locale) {
   if (!date) return "";
-  return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "long", year: "numeric" }).format(date);
+  return new Intl.DateTimeFormat(dateLocales[lang], { day: "2-digit", month: "long", year: "numeric" }).format(date);
 }
 
-export default async function News() {
+export default async function News({ lang, dict }: { lang: Locale; dict: Dictionary }) {
   const articles = await prisma.article.findMany({
     where: { status: "PUBLISHED" },
     orderBy: { publishedAt: "desc" },
@@ -20,7 +25,7 @@ export default async function News() {
   return (
     <section id="actualites" className="scroll-mt-20 bg-white py-20 sm:py-24">
       <Container>
-        <SectionHeading eyebrow="Actualités" title="Actualités TechnoTchad" />
+        <SectionHeading eyebrow={dict.home.news.eyebrow} title={dict.home.news.title} />
 
         <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
           {articles.map((article) => (
@@ -42,12 +47,12 @@ export default async function News() {
                   {article.excerpt}
                 </p>
                 <div className="mt-4 flex items-center justify-between text-sm">
-                  <span className="text-slate/70">{formatDate(article.publishedAt)}</span>
+                  <span className="text-slate/70">{formatDate(article.publishedAt, lang)}</span>
                   <Link
-                    href={`/actualites/${article.slug}`}
+                    href={localeHref(lang, `/actualites/${article.slug}`)}
                     className="font-semibold text-blue hover:text-blue-dark"
                   >
-                    Lire l&apos;article →
+                    {dict.common.readArticle}
                   </Link>
                 </div>
               </div>
@@ -57,10 +62,10 @@ export default async function News() {
 
         <div className="mt-12 text-center">
           <Link
-            href="/actualites"
+            href={localeHref(lang, "/actualites")}
             className="text-sm font-semibold text-blue hover:text-blue-dark"
           >
-            Voir toutes les actualités →
+            {dict.common.seeAllArticles}
           </Link>
         </div>
       </Container>

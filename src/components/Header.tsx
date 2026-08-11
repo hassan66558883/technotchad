@@ -3,25 +3,38 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import Container from "@/components/ui/Container";
+import { localeHref } from "@/lib/locale-link";
+import { locales, type Locale } from "@/i18n/config";
+import type { Dictionary } from "@/dictionaries";
 
-const navLinks = [
-  { href: "/", label: "Accueil" },
-  { href: "/a-propos", label: "Entreprise" },
-  { href: "/services", label: "Services" },
-  { href: "/formations", label: "Formations" },
-  { href: "/projets", label: "Projets" },
-  { href: "/actualites", label: "Actualités" },
-  { href: "/#contact", label: "Contact" },
-];
+function stripLocale(pathname: string, lang: Locale) {
+  const prefix = `/${lang}`;
+  if (pathname === prefix) return "/";
+  if (pathname.startsWith(`${prefix}/`)) return pathname.slice(prefix.length);
+  return pathname;
+}
 
-export default function Header() {
+export default function Header({ lang, nav }: { lang: Locale; nav: Dictionary["nav"] }) {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const currentPath = stripLocale(pathname, lang);
+
+  const navLinks = [
+    { href: "/", label: nav.home },
+    { href: "/a-propos", label: nav.company },
+    { href: "/services", label: nav.services },
+    { href: "/formations", label: nav.formations },
+    { href: "/projets", label: nav.projects },
+    { href: "/actualites", label: nav.news },
+    { href: "/#contact", label: nav.contact },
+  ];
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-white/90 backdrop-blur">
       <Container className="flex h-20 items-center justify-between py-2">
-        <Link href="/" className="flex items-center">
+        <Link href={localeHref(lang, "/")} className="flex items-center">
           <Image
             src="/logo-full.png"
             alt="TechnoTchad"
@@ -36,7 +49,7 @@ export default function Header() {
           {navLinks.map((link) => (
             <Link
               key={link.href}
-              href={link.href}
+              href={localeHref(lang, link.href)}
               className="text-sm font-medium text-ink/80 transition-colors hover:text-blue"
             >
               {link.label}
@@ -46,22 +59,28 @@ export default function Header() {
 
         <div className="hidden items-center gap-4 lg:flex">
           <div className="flex items-center gap-1 text-xs font-semibold text-slate">
-            <span className="cursor-pointer hover:text-blue">FR</span>
-            <span>|</span>
-            <span className="cursor-pointer hover:text-blue">EN</span>
-            <span>|</span>
-            <span className="cursor-pointer hover:text-blue">AR</span>
+            {locales.map((locale, i) => (
+              <span key={locale} className="flex items-center gap-1">
+                <Link
+                  href={`/${locale}${currentPath === "/" ? "" : currentPath}`}
+                  className={`hover:text-blue ${locale === lang ? "text-blue" : ""}`}
+                >
+                  {locale.toUpperCase()}
+                </Link>
+                {i < locales.length - 1 && <span>|</span>}
+              </span>
+            ))}
           </div>
           <Link
-            href="/#contact"
+            href={localeHref(lang, "/#contact")}
             className="rounded-full bg-blue px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue/20 transition-colors hover:bg-blue-dark"
           >
-            Demander un devis
+            {nav.quote}
           </Link>
         </div>
 
         <button
-          aria-label="Ouvrir le menu"
+          aria-label="Menu"
           className="flex h-10 w-10 items-center justify-center rounded-lg border border-line lg:hidden"
           onClick={() => setOpen((v) => !v)}
         >
@@ -85,19 +104,33 @@ export default function Header() {
             {navLinks.map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
+                href={localeHref(lang, link.href)}
                 onClick={() => setOpen(false)}
                 className="rounded-lg px-3 py-2.5 text-sm font-medium text-ink/80 hover:bg-mist hover:text-blue"
               >
                 {link.label}
               </Link>
             ))}
+            <div className="mt-2 flex items-center gap-2 px-3 text-xs font-semibold text-slate">
+              {locales.map((locale, i) => (
+                <span key={locale} className="flex items-center gap-2">
+                  <Link
+                    href={`/${locale}${currentPath === "/" ? "" : currentPath}`}
+                    onClick={() => setOpen(false)}
+                    className={`hover:text-blue ${locale === lang ? "text-blue" : ""}`}
+                  >
+                    {locale.toUpperCase()}
+                  </Link>
+                  {i < locales.length - 1 && <span>|</span>}
+                </span>
+              ))}
+            </div>
             <Link
-              href="/#contact"
+              href={localeHref(lang, "/#contact")}
               onClick={() => setOpen(false)}
               className="mt-2 rounded-full bg-blue px-5 py-3 text-center text-sm font-semibold text-white"
             >
-              Demander un devis
+              {nav.quote}
             </Link>
           </Container>
         </div>

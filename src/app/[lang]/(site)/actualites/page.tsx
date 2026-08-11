@@ -1,7 +1,11 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { prisma } from "@/lib/prisma";
+import { getDictionary } from "@/dictionaries";
+import { isLocale, type Locale } from "@/i18n/config";
+import { localeHref } from "@/lib/locale-link";
 
 export const metadata = {
   title: "Actualités — TechnoTchad",
@@ -10,12 +14,19 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-function formatDate(date: Date | null) {
+const dateLocales: Record<Locale, string> = { fr: "fr-FR", en: "en-US", ar: "ar" };
+
+function formatDate(date: Date | null, lang: Locale) {
   if (!date) return "";
-  return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "long", year: "numeric" }).format(date);
+  return new Intl.DateTimeFormat(dateLocales[lang], { day: "2-digit", month: "long", year: "numeric" }).format(date);
 }
 
-export default async function ActualitesPage() {
+export default async function ActualitesPage({ params }: PageProps<"/[lang]/actualites">) {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+  const dict = await getDictionary(lang);
+  const p = dict.pages.actualites;
+
   const articles = await prisma.article.findMany({
     where: { status: "PUBLISHED" },
     orderBy: { publishedAt: "desc" },
@@ -26,27 +37,24 @@ export default async function ActualitesPage() {
       <section className="bg-hero-gradient py-16 text-white sm:py-20">
         <Container>
           <span className="text-xs font-bold uppercase tracking-widest text-cyan">
-            Actualités
+            {p.eyebrow}
           </span>
           <h1 className="mt-3 max-w-2xl text-4xl font-bold tracking-tight">
-            Les dernières actualités TechnoTchad
+            {p.title}
           </h1>
-          <p className="mt-4 max-w-xl text-white/70">
-            Formations, technologie, cybersécurité, réseaux et ERP : suivez
-            l&apos;actualité de TechnoTchad.
-          </p>
+          <p className="mt-4 max-w-xl text-white/70">{p.description}</p>
         </Container>
       </section>
 
       <section className="bg-white py-20 sm:py-24">
         <Container>
-          <SectionHeading title="Tous les articles" align="left" />
+          <SectionHeading title={p.sectionTitle} align="left" />
 
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {articles.map((article) => (
               <Link
                 key={article.slug}
-                href={`/actualites/${article.slug}`}
+                href={localeHref(lang, `/actualites/${article.slug}`)}
                 className="group overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition-shadow hover:shadow-lg"
               >
                 <div className="flex h-36 items-center justify-center bg-mist-2 text-3xl">
@@ -63,9 +71,9 @@ export default async function ActualitesPage() {
                     {article.excerpt}
                   </p>
                   <div className="mt-4 flex items-center justify-between text-sm">
-                    <span className="text-slate/70">{formatDate(article.publishedAt)}</span>
+                    <span className="text-slate/70">{formatDate(article.publishedAt, lang)}</span>
                     <span className="font-semibold text-blue opacity-0 transition-opacity group-hover:opacity-100">
-                      Lire →
+                      {dict.common.read}
                     </span>
                   </div>
                 </div>

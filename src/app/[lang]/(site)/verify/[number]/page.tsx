@@ -1,25 +1,33 @@
+import { notFound } from "next/navigation";
 import Container from "@/components/ui/Container";
 import { prisma } from "@/lib/prisma";
+import { getDictionary } from "@/dictionaries";
+import { isLocale, type Locale } from "@/i18n/config";
 
 export const dynamic = "force-dynamic";
 
-function formatDate(date: Date) {
-  return new Intl.DateTimeFormat("fr-FR", {
+const dateLocales: Record<Locale, string> = { fr: "fr-FR", en: "en-US", ar: "ar" };
+
+function formatDate(date: Date, lang: Locale) {
+  return new Intl.DateTimeFormat(dateLocales[lang], {
     day: "2-digit",
     month: "long",
     year: "numeric",
   }).format(date);
 }
 
-export async function generateMetadata({ params }: PageProps<"/verify/[number]">) {
+export async function generateMetadata({ params }: PageProps<"/[lang]/verify/[number]">) {
   const { number } = await params;
   return { title: `Vérification ${number} — TechnoTchad` };
 }
 
 export default async function VerifyCertificatePage({
   params,
-}: PageProps<"/verify/[number]">) {
-  const { number } = await params;
+}: PageProps<"/[lang]/verify/[number]">) {
+  const { lang, number } = await params;
+  if (!isLocale(lang)) notFound();
+  const dict = await getDictionary(lang);
+  const v = dict.verify;
 
   const certificate = await prisma.certificate.findUnique({
     where: { certificateNumber: number },
@@ -44,39 +52,36 @@ export default async function VerifyCertificatePage({
               <span className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-3xl">
                 ✓
               </span>
-              <h1 className="mt-5 text-2xl font-bold text-navy">
-                Certificat authentique
-              </h1>
-              <p className="mt-2 text-sm text-slate">
-                Ce certificat a été délivré par TechnoTchad.
-              </p>
+              <h1 className="mt-5 text-2xl font-bold text-navy">{v.authenticTitle}</h1>
+              <p className="mt-2 text-sm text-slate">{v.issuedBy}</p>
 
               <div className="mt-8 space-y-3 rounded-xl bg-mist p-6 text-left">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate">N° de certificat</span>
+                  <span className="text-slate">{v.certNumber}</span>
                   <span className="font-semibold text-navy">
                     {certificate.certificateNumber}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate">Titulaire</span>
+                  <span className="text-slate">{v.holder}</span>
                   <span className="font-semibold text-navy">
                     {certificate.student.firstName} {certificate.student.lastName}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate">Formation</span>
+                  <span className="text-slate">{v.formation}</span>
                   <span className="font-semibold text-navy">{courseTitle}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate">Date d&apos;émission</span>
+                  <span className="text-slate">{v.issueDate}</span>
                   <span className="font-semibold text-navy">
-                    {formatDate(certificate.issuedAt)}
+                    {formatDate(certificate.issuedAt, lang)}
                   </span>
                 </div>
               </div>
 
               {certificate.qrCodeUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={certificate.qrCodeUrl}
                   alt="QR code de vérification"
@@ -89,14 +94,8 @@ export default async function VerifyCertificatePage({
               <span className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-3xl">
                 ✕
               </span>
-              <h1 className="mt-5 text-2xl font-bold text-navy">
-                Certificat introuvable
-              </h1>
-              <p className="mt-2 text-sm text-slate">
-                Aucun certificat ne correspond au numéro{" "}
-                <span className="font-semibold">{number}</span>. Vérifiez le
-                numéro ou contactez TechnoTchad.
-              </p>
+              <h1 className="mt-5 text-2xl font-bold text-navy">{v.notFoundTitle}</h1>
+              <p className="mt-2 text-sm text-slate">{v.notFoundText(number)}</p>
             </>
           )}
         </div>

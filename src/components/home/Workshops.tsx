@@ -2,8 +2,11 @@ import Link from "next/link";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { getUpcomingWorkshops, formatSessionDate } from "@/lib/formations-data";
+import { localeHref } from "@/lib/locale-link";
+import type { Locale } from "@/i18n/config";
+import type { Dictionary } from "@/dictionaries";
 
-export default async function Workshops() {
+export default async function Workshops({ lang, dict }: { lang: Locale; dict: Dictionary }) {
   const workshops = await getUpcomingWorkshops();
 
   if (workshops.length === 0) return null;
@@ -12,9 +15,9 @@ export default async function Workshops() {
     <section className="bg-navy py-20 text-white sm:py-24">
       <Container>
         <SectionHeading
-          eyebrow="Pratique"
-          title="Workshops TechnoTchad"
-          description="Des ateliers courts et intensifs, 100% pratiques, en petits groupes."
+          eyebrow={dict.home.workshops.eyebrow}
+          title={dict.home.workshops.title}
+          description={dict.home.workshops.description}
           dark
         />
 
@@ -34,39 +37,39 @@ export default async function Workshops() {
                 <dl className="mt-5 grid grid-cols-2 gap-3 text-sm text-white/70">
                   <div>
                     <dt className="text-xs uppercase tracking-wide text-white/40">
-                      Durée
+                      {dict.home.workshops.duration}
                     </dt>
                     <dd>{workshop.durationLabel}</dd>
                   </div>
                   <div>
                     <dt className="text-xs uppercase tracking-wide text-white/40">
-                      Horaire
+                      {dict.home.workshops.schedule}
                     </dt>
                     <dd>{workshop.schedule}</dd>
                   </div>
                   <div>
                     <dt className="text-xs uppercase tracking-wide text-white/40">
-                      Date
+                      {dict.home.workshops.date}
                     </dt>
                     <dd>{formatSessionDate(workshop.date)}</dd>
                   </div>
                   <div>
                     <dt className="text-xs uppercase tracking-wide text-white/40">
-                      Places
+                      {dict.home.workshops.seats}
                     </dt>
                     <dd>
                       {workshop.seatsLeft > 0
-                        ? `${workshop.seatsLeft} places limitées`
-                        : "Complet"}
+                        ? dict.home.workshops.seatsLimited(workshop.seatsLeft)
+                        : dict.common.full}
                     </dd>
                   </div>
                 </dl>
               </div>
               <Link
-                href={`/inscription?type=workshop&slug=${workshop.slug}`}
+                href={localeHref(lang, `/inscription?type=workshop&slug=${workshop.slug}`)}
                 className="mt-6 inline-flex items-center justify-center rounded-full bg-cyan px-5 py-3 text-sm font-semibold text-navy hover:bg-cyan/90"
               >
-                S&apos;inscrire au workshop
+                {dict.common.registerWorkshop}
               </Link>
             </div>
           ))}

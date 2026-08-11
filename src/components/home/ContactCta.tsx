@@ -3,21 +3,16 @@
 import { useState, type FormEvent } from "react";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
+import fr from "@/dictionaries/fr";
+import type { Dictionary } from "@/dictionaries";
 
-const serviceOptions = [
-  "Site web",
-  "Réseau",
-  "CCTV",
-  "PBX",
-  "ERP",
-  "Formation",
-  "Maintenance",
-  "Autre",
-];
+// The API always validates/stores the canonical French service names,
+// regardless of the language the visitor is browsing in.
+const canonicalServiceOptions = fr.home.contact.serviceOptions;
 
 type Status = "idle" | "submitting" | "success" | "error";
 
-export default function ContactCta() {
+export default function ContactCta({ dict: c }: { dict: Dictionary["home"]["contact"] }) {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -37,8 +32,7 @@ export default function ContactCta() {
       });
 
       if (!response.ok) {
-        const body = await response.json().catch(() => null);
-        setErrorMessage(body?.error ?? "Une erreur est survenue. Merci de réessayer.");
+        setErrorMessage(c.defaultError);
         setStatus("error");
         return;
       }
@@ -46,7 +40,7 @@ export default function ContactCta() {
       form.reset();
       setStatus("success");
     } catch {
-      setErrorMessage("Impossible d'envoyer votre demande. Vérifiez votre connexion.");
+      setErrorMessage(c.networkError);
       setStatus("error");
     }
   }
@@ -56,15 +50,15 @@ export default function ContactCta() {
       <Container className="grid grid-cols-1 gap-12 lg:grid-cols-2">
         <div>
           <SectionHeading
-            eyebrow="Contact"
-            title="Parlons de votre projet"
-            description="Décrivez-nous votre besoin, notre équipe vous recontacte sous 24h."
+            eyebrow={c.eyebrow}
+            title={c.title}
+            description={c.description}
             align="left"
             dark
           />
 
           <div className="mt-10 space-y-4 text-sm text-white/70">
-            <p>📍 N&apos;Djaména – Tchad</p>
+            <p>📍 {c.address}</p>
             <p>📞 60 98 48 49 &nbsp;/&nbsp; 90 98 48 49</p>
             <p>✉️ contact@technotchad.com</p>
           </div>
@@ -80,26 +74,26 @@ export default function ContactCta() {
               required
               minLength={2}
               className="rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm placeholder-white/40 outline-none focus:border-cyan"
-              placeholder="Nom complet"
+              placeholder={c.namePlaceholder}
             />
             <input
               name="company"
               className="rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm placeholder-white/40 outline-none focus:border-cyan"
-              placeholder="Entreprise"
+              placeholder={c.companyPlaceholder}
             />
             <input
               name="phone"
               required
               minLength={6}
               className="rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm placeholder-white/40 outline-none focus:border-cyan"
-              placeholder="Téléphone"
+              placeholder={c.phonePlaceholder}
             />
             <input
               name="email"
               required
               type="email"
               className="rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm placeholder-white/40 outline-none focus:border-cyan"
-              placeholder="Email"
+              placeholder={c.emailPlaceholder}
             />
             <select
               name="serviceType"
@@ -108,18 +102,18 @@ export default function ContactCta() {
               defaultValue=""
             >
               <option value="" disabled>
-                Type de service
+                {c.serviceTypePlaceholder}
               </option>
-              {serviceOptions.map((s) => (
-                <option key={s} value={s}>
-                  {s}
+              {c.serviceOptions.map((label, i) => (
+                <option key={label} value={canonicalServiceOptions[i]}>
+                  {label}
                 </option>
               ))}
             </select>
             <input
               name="budget"
               className="rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm placeholder-white/40 outline-none focus:border-cyan"
-              placeholder="Budget estimé"
+              placeholder={c.budgetPlaceholder}
             />
           </div>
           <textarea
@@ -128,12 +122,12 @@ export default function ContactCta() {
             minLength={10}
             className="mt-4 w-full rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm placeholder-white/40 outline-none focus:border-cyan"
             rows={4}
-            placeholder="Message"
+            placeholder={c.messagePlaceholder}
           />
 
           {status === "success" && (
             <p className="mt-4 rounded-lg bg-emerald-500/15 px-4 py-3 text-sm text-emerald-300">
-              Votre demande a bien été envoyée. Notre équipe vous recontacte sous 24h.
+              {c.successMessage}
             </p>
           )}
           {status === "error" && (
@@ -147,7 +141,7 @@ export default function ContactCta() {
             disabled={status === "submitting"}
             className="mt-5 w-full rounded-full bg-cyan px-6 py-3.5 text-sm font-bold text-navy transition-colors hover:bg-cyan/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {status === "submitting" ? "ENVOI EN COURS…" : "ENVOYER LA DEMANDE"}
+            {status === "submitting" ? c.submitting : c.submit}
           </button>
         </form>
       </Container>
