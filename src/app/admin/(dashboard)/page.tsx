@@ -36,7 +36,7 @@ export default async function AdminDashboardPage({
     workshopCount,
     projectCount,
     serviceCount,
-    articleCount,
+    softwareCount,
     registrations,
   ] = await Promise.all([
     prisma.quoteRequest.count(),
@@ -45,7 +45,7 @@ export default async function AdminDashboardPage({
     prisma.workshop.count(),
     prisma.project.count(),
     prisma.service.count(),
-    prisma.article.count(),
+    prisma.software.count(),
     prisma.registration.findMany({
       orderBy: { registeredAt: "desc" },
       take: 5,
@@ -64,7 +64,7 @@ export default async function AdminDashboardPage({
     { label: "Demandes de devis", value: messageCount, icon: "✉️", href: "/admin/demandes-devis" },
     { label: "Projets", value: projectCount, icon: "🏗️" },
     { label: "Services", value: serviceCount, icon: "⚙️" },
-    { label: "Articles", value: articleCount, icon: "📰" },
+    { label: "Logiciels", value: softwareCount, icon: "💾" },
   ];
 
   return (

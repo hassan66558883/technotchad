@@ -5,7 +5,6 @@ const fr = {
       "TechnoTchad accompagne les entreprises, institutions et particuliers dans leurs projets informatiques, numériques, de sécurité et de formation.",
     verifyPrefix: "Vérification",
     projectFallback: "Projet",
-    articleFallback: "Article",
   },
   nav: {
     home: "Accueil",
@@ -13,7 +12,7 @@ const fr = {
     services: "Services",
     formations: "Formations",
     projects: "Projets",
-    news: "Actualités",
+    software: "Logiciels",
     contact: "Contact",
     quote: "Demander un devis",
   },
@@ -39,15 +38,13 @@ const fr = {
     seeAllServices: "Voir tous les services →",
     seeAllFormations: "Voir toutes les formations →",
     seeAllProjects: "Voir tous les projets →",
-    seeAllArticles: "Voir toutes les actualités →",
+    seeAllSoftware: "Voir tous nos logiciels →",
     seeDetails: "Voir détails",
     viewProject: "Voir le projet →",
     register: "S'inscrire",
     registerWorkshop: "S'inscrire au workshop",
     full: "Complet",
     seatsLeft: (n: number) => `${n} places restantes`,
-    readArticle: "Lire l'article →",
-    read: "Lire →",
   },
   home: {
     hero: {
@@ -112,9 +109,10 @@ const fr = {
       eyebrow: "Témoignages",
       title: "Ce qu'ils en disent",
     },
-    news: {
-      eyebrow: "Actualités",
-      title: "Actualités TechnoTchad",
+    software: {
+      eyebrow: "Nos logiciels",
+      title: "Des logiciels prêts à l'emploi",
+      description: "Des solutions logicielles conçues et déployées par TechnoTchad pour nos clients.",
     },
     contact: {
       eyebrow: "Contact",
@@ -174,16 +172,11 @@ const fr = {
       startSimilarProject: "Démarrer un projet similaire",
       similarProjects: "Projets similaires",
     },
-    actualites: {
-      eyebrow: "Actualités",
-      title: "Les dernières actualités TechnoTchad",
-      description: "Formations, technologie, cybersécurité, réseaux et ERP : suivez l'actualité de TechnoTchad.",
-      sectionTitle: "Tous les articles",
-    },
-    articleDetail: {
-      back: "← Toutes les actualités",
-      contactUs: "Nous contacter",
-      readAlso: "À lire aussi",
+    logiciels: {
+      eyebrow: "Logiciels",
+      title: "Des logiciels métiers prêts à l'emploi",
+      description: "Des solutions logicielles conçues et déployées par TechnoTchad pour nos clients.",
+      sectionTitle: "Nos logiciels",
     },
     aPropos: {
       badgePrefix: "Entreprise · Depuis",

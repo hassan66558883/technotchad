@@ -7,7 +7,6 @@ const ar: typeof fr = {
       "ترافق تكنوتشاد الشركات والمؤسسات والأفراد في مشاريعهم المعلوماتية والرقمية والأمنية والتكوينية.",
     verifyPrefix: "التحقق",
     projectFallback: "مشروع",
-    articleFallback: "مقال",
   },
   nav: {
     home: "الرئيسية",
@@ -15,7 +14,7 @@ const ar: typeof fr = {
     services: "الخدمات",
     formations: "التكوين",
     projects: "المشاريع",
-    news: "الأخبار",
+    software: "البرمجيات",
     contact: "اتصل بنا",
     quote: "اطلب عرض سعر",
   },
@@ -41,15 +40,13 @@ const ar: typeof fr = {
     seeAllServices: "عرض جميع الخدمات ←",
     seeAllFormations: "عرض جميع التكوينات ←",
     seeAllProjects: "عرض جميع المشاريع ←",
-    seeAllArticles: "عرض جميع الأخبار ←",
+    seeAllSoftware: "عرض جميع برمجياتنا ←",
     seeDetails: "عرض التفاصيل",
     viewProject: "عرض المشروع ←",
     register: "التسجيل",
     registerWorkshop: "التسجيل في الورشة",
     full: "مكتمل",
     seatsLeft: (n: number) => `${n} مقعد متبقٍ`,
-    readArticle: "قراءة المقال ←",
-    read: "قراءة ←",
   },
   home: {
     hero: {
@@ -114,9 +111,10 @@ const ar: typeof fr = {
       eyebrow: "الشهادات",
       title: "ماذا يقولون عنا",
     },
-    news: {
-      eyebrow: "الأخبار",
-      title: "أخبار تكنوتشاد",
+    software: {
+      eyebrow: "برمجياتنا",
+      title: "برمجيات جاهزة للاستخدام",
+      description: "حلول برمجية صممتها ونفذتها تكنوتشاد لصالح عملائنا.",
     },
     contact: {
       eyebrow: "اتصل بنا",
@@ -183,16 +181,11 @@ const ar: typeof fr = {
       startSimilarProject: "ابدأ مشروعاً مماثلاً",
       similarProjects: "مشاريع مماثلة",
     },
-    actualites: {
-      eyebrow: "الأخبار",
-      title: "آخر أخبار تكنوتشاد",
-      description: "التكوين، التكنولوجيا، الأمن السيبراني، الشبكات وأنظمة تخطيط الموارد: تابعوا أخبار تكنوتشاد.",
-      sectionTitle: "جميع المقالات",
-    },
-    articleDetail: {
-      back: "← جميع الأخبار",
-      contactUs: "اتصل بنا",
-      readAlso: "اقرأ أيضاً",
+    logiciels: {
+      eyebrow: "البرمجيات",
+      title: "برمجيات جاهزة للأعمال",
+      description: "حلول برمجية صممتها ونفذتها تكنوتشاد لصالح عملائنا.",
+      sectionTitle: "برمجياتنا",
     },
     aPropos: {
       badgePrefix: "الشركة · منذ",

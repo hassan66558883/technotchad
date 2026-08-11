@@ -181,6 +181,14 @@ model Service {
   order       Int    @default(0)
 }
 
+model Software {
+  slug        String @id
+  icon        String
+  name        String
+  description String
+  order       Int    @default(0)
+}
+
 model Project {
   slug        String   @id
   category    String

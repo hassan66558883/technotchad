@@ -10,7 +10,7 @@ const CONTENT_PATHS = [
   "/admin/services",
   "/admin/filieres",
   "/admin/projets",
-  "/admin/actualites",
+  "/admin/logiciels",
   "/admin/galerie",
   "/admin/temoignages",
   "/admin/equipe",

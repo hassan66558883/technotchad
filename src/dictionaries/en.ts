@@ -7,7 +7,6 @@ const en: typeof fr = {
       "TechnoTchad supports companies, institutions and individuals in their IT, digital, security and training projects.",
     verifyPrefix: "Verification",
     projectFallback: "Project",
-    articleFallback: "Article",
   },
   nav: {
     home: "Home",
@@ -15,7 +14,7 @@ const en: typeof fr = {
     services: "Services",
     formations: "Training",
     projects: "Projects",
-    news: "News",
+    software: "Software",
     contact: "Contact",
     quote: "Request a quote",
   },
@@ -41,15 +40,13 @@ const en: typeof fr = {
     seeAllServices: "See all services →",
     seeAllFormations: "See all training →",
     seeAllProjects: "See all projects →",
-    seeAllArticles: "See all news →",
+    seeAllSoftware: "See all our software →",
     seeDetails: "View details",
     viewProject: "View project →",
     register: "Register",
     registerWorkshop: "Register for the workshop",
     full: "Full",
     seatsLeft: (n: number) => `${n} seats left`,
-    readArticle: "Read article →",
-    read: "Read →",
   },
   home: {
     hero: {
@@ -114,9 +111,10 @@ const en: typeof fr = {
       eyebrow: "Testimonials",
       title: "What they say about us",
     },
-    news: {
-      eyebrow: "News",
-      title: "TechnoTchad News",
+    software: {
+      eyebrow: "Our software",
+      title: "Ready-made software solutions",
+      description: "Software solutions designed and deployed by TechnoTchad for our clients.",
     },
     contact: {
       eyebrow: "Contact",
@@ -174,16 +172,11 @@ const en: typeof fr = {
       startSimilarProject: "Start a similar project",
       similarProjects: "Similar projects",
     },
-    actualites: {
-      eyebrow: "News",
-      title: "The latest from TechnoTchad",
-      description: "Training, technology, cybersecurity, networking and ERP: follow TechnoTchad's latest news.",
-      sectionTitle: "All articles",
-    },
-    articleDetail: {
-      back: "← All news",
-      contactUs: "Contact us",
-      readAlso: "Read also",
+    logiciels: {
+      eyebrow: "Software",
+      title: "Ready-made business software",
+      description: "Software solutions designed and deployed by TechnoTchad for our clients.",
+      sectionTitle: "Our software",
     },
     aPropos: {
       badgePrefix: "Company · Since",

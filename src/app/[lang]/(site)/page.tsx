@@ -11,7 +11,7 @@ import Projects from "@/components/home/Projects";
 import Technologies from "@/components/home/Technologies";
 import About from "@/components/home/About";
 import Testimonials from "@/components/home/Testimonials";
-import News from "@/components/home/News";
+import OurSoftware from "@/components/home/OurSoftware";
 import ContactCta from "@/components/home/ContactCta";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]">) {
@@ -38,7 +38,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
       <Technologies dict={dict} />
       <About dict={dict} />
       <Testimonials dict={dict} />
-      <News lang={lang} dict={dict} />
+      <OurSoftware lang={lang} dict={dict} />
       <ContactCta dict={dict.home.contact} />
     </>
   );

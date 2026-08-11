@@ -27,7 +27,7 @@ export default function Header({ lang, nav }: { lang: Locale; nav: Dictionary["n
     { href: "/services", label: nav.services },
     { href: "/formations", label: nav.formations },
     { href: "/projets", label: nav.projects },
-    { href: "/actualites", label: nav.news },
+    { href: "/logiciels", label: nav.software },
     { href: "/#contact", label: nav.contact },
   ];
 

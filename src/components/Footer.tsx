@@ -15,7 +15,7 @@ export default async function Footer({ lang, dict }: { lang: Locale; dict: Dicti
     { href: "/services", label: dict.nav.services },
     { href: "/formations", label: dict.nav.formations },
     { href: "/projets", label: dict.nav.projects },
-    { href: "/actualites", label: dict.nav.news },
+    { href: "/logiciels", label: dict.nav.software },
     { href: "/#contact", label: dict.nav.contact },
   ];
 

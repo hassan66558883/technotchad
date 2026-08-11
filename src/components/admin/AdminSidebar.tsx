@@ -15,7 +15,7 @@ const menu: { section: string; items: { label: string; href: string }[] }[] = [
       { label: "Formations", href: "/admin/formations" },
       { label: "Workshops", href: "/admin/workshops" },
       { label: "Projets", href: "/admin/projets" },
-      { label: "Actualités", href: "/admin/actualites" },
+      { label: "Logiciels", href: "/admin/logiciels" },
       { label: "Galerie", href: "/admin/galerie" },
       { label: "Témoignages", href: "/admin/temoignages" },
       { label: "Équipe", href: "/admin/equipe" },
