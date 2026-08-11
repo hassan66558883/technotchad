@@ -52,7 +52,7 @@ const menu: { section: string; items: { label: string; href: string }[] }[] = [
       { label: "Paramètres", href: "/admin/parametres" },
       { label: "Médias", href: "#" },
       { label: "Sauvegardes", href: "#" },
-      { label: "Journal d'activité", href: "#" },
+      { label: "Journal d'activité", href: "/admin/journal-activite" },
     ],
   },
 ];

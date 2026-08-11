@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activityLog";
 
 const validStatuses = new Set(["PENDING", "PAID", "REFUNDED"]);
 
@@ -12,13 +13,19 @@ export async function createPayment(formData: FormData) {
 
   if (!registrationId || !Number.isFinite(amount) || amount <= 0 || !method) return;
 
-  await prisma.payment.create({
+  const payment = await prisma.payment.create({
     data: {
       registrationId,
       amount: Math.round(amount),
       method,
       status: "PENDING",
     },
+  });
+
+  await logActivity({
+    action: `Paiement enregistré (${Math.round(amount)} FCFA)`,
+    entityType: "Paiement",
+    entityId: payment.id,
   });
 
   revalidatePath("/admin/paiements");
@@ -33,6 +40,12 @@ export async function updatePaymentStatus(id: string, status: string) {
       status,
       paidAt: status === "PAID" ? new Date() : null,
     },
+  });
+
+  await logActivity({
+    action: `Statut paiement → ${status}`,
+    entityType: "Paiement",
+    entityId: id,
   });
 
   revalidatePath("/admin/paiements");

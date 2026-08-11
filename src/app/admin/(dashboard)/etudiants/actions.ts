@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { buildCertificateNumber, buildInscriptionNumber, buildVerifyUrl } from "@/lib/certificate";
 import { sendMail } from "@/lib/email";
+import { logActivity } from "@/lib/activityLog";
 
 function str(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
@@ -62,6 +63,12 @@ export async function generateCertificate(registrationId: string) {
     },
   });
 
+  await logActivity({
+    action: `Certificat généré (${certificateNumber})`,
+    entityType: "Certificat",
+    entityId: registration.id,
+  });
+
   revalidatePath("/admin/etudiants");
   revalidatePath(`/admin/etudiants/${registration.studentId}`);
   revalidatePath("/admin/certificats");
@@ -107,6 +114,12 @@ export async function createStudent(
     create: { firstName, lastName, phone, email, ...ficheFields },
   });
 
+  await logActivity({
+    action: `Fiche étudiant enregistrée (${firstName} ${lastName})`,
+    entityType: "Étudiant",
+    entityId: student.id,
+  });
+
   if (enrollment) {
     const [type, id] = enrollment.split(":");
     const year = new Date().getFullYear();
@@ -140,6 +153,12 @@ export async function createStudent(
       },
     });
 
+    await logActivity({
+      action: `Inscription créée (${inscriptionNumber})`,
+      entityType: "Inscription",
+      entityId: registration.id,
+    });
+
     const initialDeposit = int(formData, "paidAmount");
     if (initialDeposit) {
       await prisma.payment.create({
@@ -150,6 +169,11 @@ export async function createStudent(
           status: "PAID",
           paidAt: new Date(),
         },
+      });
+      await logActivity({
+        action: `Acompte enregistré (${initialDeposit} FCFA)`,
+        entityType: "Paiement",
+        entityId: registration.id,
       });
     }
 
@@ -234,6 +258,12 @@ export async function updateFiche(
       paymentMethod: str(formData, "paymentMethod") ?? null,
       documentsProvided: str(formData, "documentsProvided") ?? null,
     },
+  });
+
+  await logActivity({
+    action: `Fiche modifiée (${firstName} ${lastName})`,
+    entityType: "Inscription",
+    entityId: registrationId,
   });
 
   revalidatePath("/admin/etudiants");

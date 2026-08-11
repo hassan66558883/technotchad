@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 import { ROLES } from "@/lib/roles";
+import { logActivity } from "@/lib/activityLog";
 
 async function requireSuperAdmin() {
   const cookieStore = await cookies();
@@ -26,7 +27,7 @@ function refresh() {
 export type UserFormState = { error?: string } | undefined;
 
 export async function createUser(_prevState: UserFormState, formData: FormData): Promise<UserFormState> {
-  await requireSuperAdmin();
+  const session = await requireSuperAdmin();
 
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
@@ -46,7 +47,14 @@ export async function createUser(_prevState: UserFormState, formData: FormData):
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
-  await prisma.user.create({ data: { name, email, password: passwordHash, role } });
+  const user = await prisma.user.create({ data: { name, email, password: passwordHash, role } });
+
+  await logActivity({
+    userId: session.sub,
+    action: `Création utilisateur (${role})`,
+    entityType: "Utilisateur",
+    entityId: user.id,
+  });
 
   refresh();
   redirect("/admin/utilisateurs");
@@ -67,18 +75,30 @@ export async function updateUserRole(id: string, formData: FormData) {
   }
 
   await prisma.user.update({ where: { id }, data: { name, role } });
+  await logActivity({
+    userId: session.sub,
+    action: `Modification rôle → ${role}`,
+    entityType: "Utilisateur",
+    entityId: id,
+  });
   refresh();
   redirect("/admin/utilisateurs");
 }
 
 export async function resetUserPassword(id: string, formData: FormData) {
-  await requireSuperAdmin();
+  const session = await requireSuperAdmin();
 
   const password = String(formData.get("password") ?? "");
   if (password.length < 8) return;
 
   const passwordHash = await bcrypt.hash(password, 10);
   await prisma.user.update({ where: { id }, data: { password: passwordHash } });
+  await logActivity({
+    userId: session.sub,
+    action: "Réinitialisation mot de passe",
+    entityType: "Utilisateur",
+    entityId: id,
+  });
   refresh();
   redirect("/admin/utilisateurs");
 }
@@ -97,5 +117,11 @@ export async function deleteUser(id: string) {
   }
 
   await prisma.user.delete({ where: { id } });
+  await logActivity({
+    userId: session.sub,
+    action: `Suppression utilisateur (${target?.name ?? id})`,
+    entityType: "Utilisateur",
+    entityId: id,
+  });
   refresh();
 }
