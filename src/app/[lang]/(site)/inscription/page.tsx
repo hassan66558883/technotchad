@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Container from "@/components/ui/Container";
 import RegistrationForm from "@/components/RegistrationForm";
-import { formations, workshops } from "@/lib/data";
+import { prisma } from "@/lib/prisma";
 import { getDictionary } from "@/dictionaries";
 import { isLocale } from "@/i18n/config";
 import { localeHref } from "@/lib/locale-link";
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/inscription">) {
   const { lang } = await params;
@@ -27,9 +29,9 @@ export default async function InscriptionPage({
   const type = sp.type === "workshop" ? "workshop" : "course";
   const slug = typeof sp.slug === "string" ? sp.slug : "";
 
-  const formation = type === "course" ? formations.find((f) => f.slug === slug) : undefined;
-  const workshop = type === "workshop" ? workshops.find((w) => w.slug === slug) : undefined;
-  const item = formation ?? workshop;
+  const course = type === "course" && slug ? await prisma.course.findUnique({ where: { slug } }) : null;
+  const workshop = type === "workshop" && slug ? await prisma.workshop.findUnique({ where: { slug } }) : null;
+  const item = course ?? workshop;
 
   if (!item) {
     return (
@@ -58,7 +60,7 @@ export default async function InscriptionPage({
           {item.title}
         </h1>
         <p className="mt-2 text-sm text-slate">
-          {"category" in item ? item.category : p.workshopLabel} · {item.duration}
+          {"category" in item ? item.category : p.workshopLabel} · {item.durationLabel}
         </p>
 
         <div className="mt-8">
