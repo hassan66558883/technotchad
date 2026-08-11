@@ -33,6 +33,7 @@ export const ROLE_PATHS: Record<string, "*" | string[]> = {
   SUPER_ADMIN: "*",
   ADMIN: ["/admin/compte", ...CONTENT_PATHS, ...TRAINING_OPS_PATHS, "/admin/demandes-devis"],
   TRAINER: ["/admin/compte", ...TRAINING_OPS_PATHS],
+  SECRETARY: ["/admin/compte", "/admin/etudiants", "/admin/inscriptions", "/admin/demandes-devis"],
   ACCOUNTANT: ["/admin/compte", "/admin/paiements"],
   EDITOR: ["/admin/compte", ...CONTENT_PATHS],
   STUDENT: [],
