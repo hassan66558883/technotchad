@@ -2,14 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 import { canAccessPath, hasAnyAdminAccess } from "@/lib/permissions";
-import { locales, defaultLocale, isLocale } from "@/i18n/config";
-
-function getPreferredLocale(request: NextRequest) {
-  const header = request.headers.get("accept-language");
-  if (!header) return defaultLocale;
-  const preferred = header.split(",")[0]?.split("-")[0]?.toLowerCase();
-  return preferred && isLocale(preferred) ? preferred : defaultLocale;
-}
+import { locales, defaultLocale } from "@/i18n/config";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -39,9 +32,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const locale = getPreferredLocale(request);
   const url = request.nextUrl.clone();
-  url.pathname = `/${locale}${pathname}`;
+  url.pathname = `/${defaultLocale}${pathname}`;
   return NextResponse.redirect(url);
 }
 
