@@ -7,8 +7,6 @@ import { getDictionary } from "@/dictionaries";
 import { isLocale } from "@/i18n/config";
 import { localeHref } from "@/lib/locale-link";
 
-export const dynamic = "force-dynamic";
-
 export async function generateMetadata({ params }: PageProps<"/[lang]/projets">) {
   const { lang } = await params;
   if (!isLocale(lang)) return {};

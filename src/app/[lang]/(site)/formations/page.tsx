@@ -9,7 +9,7 @@ import { getDictionary } from "@/dictionaries";
 import { isLocale } from "@/i18n/config";
 import { localeHref } from "@/lib/locale-link";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/formations">) {
   const { lang } = await params;

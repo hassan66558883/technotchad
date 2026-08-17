@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { revalidatePublicPath } from "@/lib/revalidate-locales";
 
 const DIACRITICS_PATTERN = new RegExp(String.fromCharCode(0x0300) + "-" + String.fromCharCode(0x036f), "g");
 
@@ -14,7 +15,7 @@ function slugify(input: string) {
 
 function refresh() {
   revalidatePath("/admin/filieres");
-  revalidatePath("/formations");
+  revalidatePublicPath("/formations");
 }
 
 export async function createFiliere(formData: FormData) {

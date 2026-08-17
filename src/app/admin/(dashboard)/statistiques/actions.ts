@@ -3,10 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { revalidatePublicPath } from "@/lib/revalidate-locales";
 
 function refresh() {
   revalidatePath("/admin/statistiques");
-  revalidatePath("/");
+  revalidatePublicPath("");
 }
 
 export async function createStat(formData: FormData) {

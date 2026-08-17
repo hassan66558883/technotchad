@@ -5,8 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { getDictionary } from "@/dictionaries";
 import { isLocale } from "@/i18n/config";
 
-export const dynamic = "force-dynamic";
-
 export async function generateMetadata({ params }: PageProps<"/[lang]/logiciels">) {
   const { lang } = await params;
   if (!isLocale(lang)) return {};

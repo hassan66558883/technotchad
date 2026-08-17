@@ -6,8 +6,6 @@ import { getDictionary } from "@/dictionaries";
 import { isLocale } from "@/i18n/config";
 import { localeHref } from "@/lib/locale-link";
 
-export const dynamic = "force-dynamic";
-
 export async function generateMetadata({ params }: PageProps<"/[lang]/projets/[slug]">) {
   const { lang, slug } = await params;
   const project = await prisma.project.findUnique({ where: { slug } });

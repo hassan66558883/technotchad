@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { revalidatePublicPath } from "@/lib/revalidate-locales";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -74,6 +75,9 @@ export async function POST(request: Request) {
       status: "PENDING",
     },
   });
+
+  revalidatePublicPath("/formations");
+  revalidatePublicPath("");
 
   return NextResponse.json(
     { id: registration.id, label: target.label },

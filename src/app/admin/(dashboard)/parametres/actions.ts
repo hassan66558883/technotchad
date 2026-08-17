@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { SOCIAL_SETTING_KEYS } from "@/lib/settings";
+import { revalidatePublicPath } from "@/lib/revalidate-locales";
 
 export async function updateSocialSettings(formData: FormData) {
   for (const key of SOCIAL_SETTING_KEYS) {
@@ -15,5 +16,5 @@ export async function updateSocialSettings(formData: FormData) {
   }
 
   revalidatePath("/admin/parametres");
-  revalidatePath("/");
+  revalidatePublicPath("");
 }

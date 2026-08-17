@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { revalidatePublicPath } from "@/lib/revalidate-locales";
 
 const DIACRITICS_PATTERN = new RegExp(String.fromCharCode(0x0300) + "-" + String.fromCharCode(0x036f), "g");
 
@@ -14,9 +15,9 @@ function slugify(input: string) {
 
 function refresh(slug?: string) {
   revalidatePath("/admin/projets");
-  revalidatePath("/projets");
-  revalidatePath("/");
-  if (slug) revalidatePath(`/projets/${slug}`);
+  revalidatePublicPath("/projets");
+  revalidatePublicPath("");
+  if (slug) revalidatePublicPath(`/projets/${slug}`);
 }
 
 function readProjectForm(formData: FormData) {

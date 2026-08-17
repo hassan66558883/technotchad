@@ -24,7 +24,7 @@ export const SOCIAL_SETTING_KEYS = [
 export type SocialSettingKey = (typeof SOCIAL_SETTING_KEYS)[number];
 
 export async function getSettings<K extends string>(keys: readonly K[]): Promise<Record<K, string>> {
-  const rows = await prisma.setting.findMany({ where: { key: { in: keys as string[] } } });
+  const rows = await prisma.setting.findMany({ where: { key: { in: [...keys] } } });
   const map = Object.fromEntries(rows.map((r) => [r.key, r.value])) as Record<K, string>;
   for (const key of keys) {
     if (!(key in map)) map[key] = "";

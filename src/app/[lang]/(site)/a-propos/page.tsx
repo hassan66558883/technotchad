@@ -6,8 +6,6 @@ import { getSettings, splitLines, ABOUT_SETTING_KEYS } from "@/lib/settings";
 import { getDictionary } from "@/dictionaries";
 import { isLocale } from "@/i18n/config";
 
-export const dynamic = "force-dynamic";
-
 export async function generateMetadata({ params }: PageProps<"/[lang]/a-propos">) {
   const { lang } = await params;
   if (!isLocale(lang)) return {};
