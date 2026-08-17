@@ -1,8 +1,8 @@
 const fr = {
   meta: {
-    siteTitle: "TechnoTchad — Votre partenaire technologique au Tchad",
+    siteTitle: "TechnoTchad — Informatique, ERP, CCTV & Formation au Tchad",
     siteDescription:
-      "TechnoTchad accompagne les entreprises, institutions et particuliers dans leurs projets informatiques, numériques, de sécurité et de formation.",
+      "TechnoTchad, entreprise informatique et éditeur de logiciels (ERP Odoo) à N'Djaména : CCTV, réseaux, développement web et centre de formation IT au Tchad.",
     verifyPrefix: "Vérification",
     projectFallback: "Projet",
   },
