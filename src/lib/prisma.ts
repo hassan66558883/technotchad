@@ -10,7 +10,7 @@ const pool =
     connectionString: process.env.DATABASE_URL!,
     max: 10,
     idleTimeoutMillis: 60_000,
-    connectionTimeoutMillis: 10_000,
+    connectionTimeoutMillis: 30_000,
   });
 
 // Required: the `pg` Pool emits 'error' on idle clients that the remote
