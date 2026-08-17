@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   title: "TechnoTchad — Votre partenaire technologique au Tchad",
   description:
     "TechnoTchad accompagne les entreprises, institutions et particuliers dans leurs projets informatiques, numériques, de sécurité et de formation.",
+  verification: {
+    google: "Rsmgr77iztt6cnlOrf5RtQNfKU6236YydIcTcvJ7zfU",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
