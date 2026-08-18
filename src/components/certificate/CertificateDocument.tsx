@@ -131,7 +131,15 @@ export default function CertificateDocument(props: CertificateDocumentProps) {
 
   const pronoun = gender === "F" ? "Elle" : "Il";
   const bornSuffix = gender === "F" ? "née" : "né(e)";
-  const programLine = trainingDetail ? `${programTitle} (${trainingDetail})` : programTitle;
+  // Course/workshop descriptions are written for the public catalogue and can run
+  // long — the certificate body is a single fixed-size sentence, so it must stay
+  // short enough to always fit on one page regardless of description length.
+  const MAX_DETAIL_LENGTH = 90;
+  const shortDetail =
+    trainingDetail && trainingDetail.length > MAX_DETAIL_LENGTH
+      ? `${trainingDetail.slice(0, MAX_DETAIL_LENGTH).trimEnd().replace(/[.,;:]+$/, "")}…`
+      : trainingDetail?.replace(/\.$/, "") ?? null;
+  const programLine = shortDetail ? `${programTitle} (${shortDetail})` : programTitle;
 
   return (
     <Document>
