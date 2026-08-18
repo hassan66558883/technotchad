@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { revalidatePublicPath } from "@/lib/revalidate-locales";
+import { logActivity } from "@/lib/activityLog";
 
 const DIACRITICS_PATTERN = new RegExp(String.fromCharCode(0x0300) + "-" + String.fromCharCode(0x036f), "g");
 
@@ -60,6 +61,7 @@ export async function createProject(formData: FormData) {
       images: { create: galleryUrls.map((url) => ({ url })) },
     },
   });
+  await logActivity({ action: `Projet créé (${f.title})`, entityType: "Projet", entityId: slug });
   refresh(slug);
 }
 
@@ -88,6 +90,7 @@ export async function updateProject(slug: string, formData: FormData) {
       images: { create: galleryUrls.map((url) => ({ url })) },
     },
   });
+  await logActivity({ action: `Projet modifié (${f.title})`, entityType: "Projet", entityId: slug });
   refresh(slug);
   redirect("/admin/projets");
 }
@@ -95,5 +98,6 @@ export async function updateProject(slug: string, formData: FormData) {
 export async function deleteProject(slug: string) {
   await prisma.projectImage.deleteMany({ where: { projectSlug: slug } });
   await prisma.project.delete({ where: { slug } });
+  await logActivity({ action: "Projet supprimé", entityType: "Projet", entityId: slug });
   refresh(slug);
 }

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { revalidatePublicPath } from "@/lib/revalidate-locales";
+import { logActivity } from "@/lib/activityLog";
 
 const DIACRITICS_PATTERN = new RegExp(String.fromCharCode(0x0300) + "-" + String.fromCharCode(0x036f), "g");
 
@@ -52,6 +53,7 @@ export async function createWorkshop(formData: FormData) {
       requiresFullPayment: f.requiresFullPayment,
     },
   });
+  await logActivity({ action: `Workshop créé (${f.title})`, entityType: "Workshop", entityId: slug });
   refresh();
 }
 
@@ -72,6 +74,7 @@ export async function updateWorkshop(slug: string, formData: FormData) {
       requiresFullPayment: f.requiresFullPayment,
     },
   });
+  await logActivity({ action: `Workshop modifié (${f.title})`, entityType: "Workshop", entityId: slug });
   refresh();
   redirect("/admin/workshops");
 }
@@ -79,5 +82,6 @@ export async function updateWorkshop(slug: string, formData: FormData) {
 export async function deleteWorkshop(slug: string) {
   await prisma.registration.deleteMany({ where: { workshopSlug: slug } });
   await prisma.workshop.delete({ where: { slug } });
+  await logActivity({ action: "Workshop supprimé", entityType: "Workshop", entityId: slug });
   refresh();
 }

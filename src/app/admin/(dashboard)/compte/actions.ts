@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
+import { logActivity } from "@/lib/activityLog";
 
 export type ChangePasswordState = { error?: string; success?: boolean } | undefined;
 
@@ -45,6 +46,12 @@ export async function changePassword(
 
   const newHash = await bcrypt.hash(newPassword, 10);
   await prisma.user.update({ where: { id: user.id }, data: { password: newHash } });
+
+  await logActivity({
+    action: "Mot de passe changé",
+    entityType: "Utilisateur",
+    entityId: user.id,
+  });
 
   return { success: true };
 }

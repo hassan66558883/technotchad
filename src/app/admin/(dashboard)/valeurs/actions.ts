@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { revalidatePublicPath } from "@/lib/revalidate-locales";
+import { logActivity } from "@/lib/activityLog";
 
 const validTypes = new Set(["VALUE", "WHY_US"]);
 
@@ -20,7 +21,8 @@ export async function createCompanyValue(formData: FormData) {
   const order = Number(formData.get("order") ?? 0) || 0;
   if (!validTypes.has(type) || !title || !description) return;
 
-  await prisma.companyValue.create({ data: { type, title, description, order } });
+  const value = await prisma.companyValue.create({ data: { type, title, description, order } });
+  await logActivity({ action: `Valeur ajoutée (${title})`, entityType: "Valeur", entityId: value.id });
   refresh();
 }
 
@@ -32,11 +34,13 @@ export async function updateCompanyValue(id: string, formData: FormData) {
   if (!validTypes.has(type) || !title || !description) return;
 
   await prisma.companyValue.update({ where: { id }, data: { type, title, description, order } });
+  await logActivity({ action: `Valeur modifiée (${title})`, entityType: "Valeur", entityId: id });
   refresh();
   redirect("/admin/valeurs");
 }
 
 export async function deleteCompanyValue(id: string) {
   await prisma.companyValue.delete({ where: { id } });
+  await logActivity({ action: "Valeur supprimée", entityType: "Valeur", entityId: id });
   refresh();
 }

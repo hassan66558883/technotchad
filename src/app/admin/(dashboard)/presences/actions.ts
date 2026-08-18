@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activityLog";
 
 export async function markAttendance(
   registrationId: string,
@@ -22,6 +23,12 @@ export async function markAttendance(
       data: { registrationId, courseSessionId, date, present },
     });
   }
+
+  await logActivity({
+    action: `Présence ${present ? "marquée" : "annulée"} (${dateISO})`,
+    entityType: "Présence",
+    entityId: registrationId,
+  });
 
   revalidatePath("/admin/presences");
   revalidatePath("/admin/etudiants");

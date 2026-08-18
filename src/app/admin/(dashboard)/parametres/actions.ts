@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { SOCIAL_SETTING_KEYS } from "@/lib/settings";
 import { revalidatePublicPath } from "@/lib/revalidate-locales";
+import { logActivity } from "@/lib/activityLog";
 
 export async function updateSocialSettings(formData: FormData) {
   for (const key of SOCIAL_SETTING_KEYS) {
@@ -14,6 +15,8 @@ export async function updateSocialSettings(formData: FormData) {
       create: { key, value },
     });
   }
+
+  await logActivity({ action: "Paramètres sociaux modifiés", entityType: "Paramètres" });
 
   revalidatePath("/admin/parametres");
   revalidatePublicPath("");

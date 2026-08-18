@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activityLog";
 
 export async function createInstructor(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
@@ -11,7 +12,7 @@ export async function createInstructor(formData: FormData) {
   const phone = String(formData.get("phone") ?? "").trim();
   const bio = String(formData.get("bio") ?? "").trim();
 
-  await prisma.instructor.create({
+  const instructor = await prisma.instructor.create({
     data: {
       name,
       email: email || null,
@@ -19,6 +20,8 @@ export async function createInstructor(formData: FormData) {
       bio: bio || null,
     },
   });
+
+  await logActivity({ action: `Formateur ajouté (${name})`, entityType: "Formateur", entityId: instructor.id });
 
   revalidatePath("/admin/formateurs");
 }

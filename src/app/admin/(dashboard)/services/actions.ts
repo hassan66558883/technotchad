@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { revalidatePublicPath } from "@/lib/revalidate-locales";
+import { logActivity } from "@/lib/activityLog";
 
 const DIACRITICS_PATTERN = new RegExp(String.fromCharCode(0x0300) + "-" + String.fromCharCode(0x036f), "g");
 
@@ -28,6 +29,7 @@ export async function createService(formData: FormData) {
 
   const slug = slugify(title);
   await prisma.service.create({ data: { slug, icon, title, description, order } });
+  await logActivity({ action: `Service créé (${title})`, entityType: "Service", entityId: slug });
   refresh();
 }
 
@@ -39,11 +41,13 @@ export async function updateService(slug: string, formData: FormData) {
   if (!icon || !title || !description) return;
 
   await prisma.service.update({ where: { slug }, data: { icon, title, description, order } });
+  await logActivity({ action: `Service modifié (${title})`, entityType: "Service", entityId: slug });
   refresh();
   redirect("/admin/services");
 }
 
 export async function deleteService(slug: string) {
   await prisma.service.delete({ where: { slug } });
+  await logActivity({ action: "Service supprimé", entityType: "Service", entityId: slug });
   refresh();
 }

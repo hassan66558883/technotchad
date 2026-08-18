@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { revalidatePublicPath } from "@/lib/revalidate-locales";
+import { logActivity } from "@/lib/activityLog";
 
 function refresh() {
   revalidatePath("/admin/temoignages");
@@ -18,9 +19,10 @@ export async function createTestimonial(formData: FormData) {
   const approved = formData.get("approved") === "on";
   if (!name || !text) return;
 
-  await prisma.testimonial.create({
+  const testimonial = await prisma.testimonial.create({
     data: { name, role: role || null, text, rating, approved, publishedAt: approved ? new Date() : null },
   });
+  await logActivity({ action: `Témoignage ajouté (${name})`, entityType: "Témoignage", entityId: testimonial.id });
   refresh();
 }
 
@@ -44,11 +46,13 @@ export async function updateTestimonial(id: string, formData: FormData) {
       publishedAt: approved ? (existing?.publishedAt ?? new Date()) : null,
     },
   });
+  await logActivity({ action: `Témoignage modifié (${name})`, entityType: "Témoignage", entityId: id });
   refresh();
   redirect("/admin/temoignages");
 }
 
 export async function deleteTestimonial(id: string) {
   await prisma.testimonial.delete({ where: { id } });
+  await logActivity({ action: "Témoignage supprimé", entityType: "Témoignage", entityId: id });
   refresh();
 }

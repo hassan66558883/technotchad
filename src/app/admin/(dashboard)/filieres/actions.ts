@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { revalidatePublicPath } from "@/lib/revalidate-locales";
+import { logActivity } from "@/lib/activityLog";
 
 const DIACRITICS_PATTERN = new RegExp(String.fromCharCode(0x0300) + "-" + String.fromCharCode(0x036f), "g");
 
@@ -27,6 +28,7 @@ export async function createFiliere(formData: FormData) {
 
   const slug = slugify(title);
   await prisma.filiere.create({ data: { slug, icon, title, topics, order } });
+  await logActivity({ action: `Filière créée (${title})`, entityType: "Filière", entityId: slug });
   refresh();
 }
 
@@ -38,11 +40,13 @@ export async function updateFiliere(slug: string, formData: FormData) {
   if (!icon || !title || !topics) return;
 
   await prisma.filiere.update({ where: { slug }, data: { icon, title, topics, order } });
+  await logActivity({ action: `Filière modifiée (${title})`, entityType: "Filière", entityId: slug });
   refresh();
   redirect("/admin/filieres");
 }
 
 export async function deleteFiliere(slug: string) {
   await prisma.filiere.delete({ where: { slug } });
+  await logActivity({ action: "Filière supprimée", entityType: "Filière", entityId: slug });
   refresh();
 }

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { revalidatePublicPath } from "@/lib/revalidate-locales";
+import { logActivity } from "@/lib/activityLog";
 
 const DIACRITICS_PATTERN = new RegExp(String.fromCharCode(0x0300) + "-" + String.fromCharCode(0x036f), "g");
 
@@ -33,6 +34,7 @@ export async function createCourse(formData: FormData) {
   await prisma.course.create({
     data: { slug, category, title, description, price, durationLabel, imageUrl: imageUrl || null, requiresFullPayment },
   });
+  await logActivity({ action: `Cours créé (${title})`, entityType: "Formation", entityId: slug });
   refresh();
 }
 
@@ -50,6 +52,7 @@ export async function updateCourse(slug: string, formData: FormData) {
     where: { slug },
     data: { category, title, description, price, durationLabel, imageUrl: imageUrl || null, requiresFullPayment },
   });
+  await logActivity({ action: `Cours modifié (${title})`, entityType: "Formation", entityId: slug });
   refresh();
   redirect("/admin/formations");
 }
@@ -59,6 +62,7 @@ export async function deleteCourse(slug: string) {
   await prisma.registration.deleteMany({ where: { courseSession: { courseSlug: slug } } });
   await prisma.courseSession.deleteMany({ where: { courseSlug: slug } });
   await prisma.course.delete({ where: { slug } });
+  await logActivity({ action: "Cours supprimé", entityType: "Formation", entityId: slug });
   refresh();
 }
 
@@ -70,7 +74,7 @@ export async function createSession(formData: FormData) {
   const seats = Number(formData.get("seats") ?? 0) || 0;
   if (!courseSlug || !startDate || !schedule || seats <= 0) return;
 
-  await prisma.courseSession.create({
+  const session = await prisma.courseSession.create({
     data: {
       courseSlug,
       instructorId: instructorId || null,
@@ -80,6 +84,7 @@ export async function createSession(formData: FormData) {
       status: "UPCOMING",
     },
   });
+  await logActivity({ action: `Session créée (${courseSlug})`, entityType: "Session", entityId: session.id });
   refresh();
 }
 
@@ -95,6 +100,7 @@ export async function updateSession(id: string, formData: FormData) {
     where: { id },
     data: { instructorId: instructorId || null, startDate: new Date(startDate), schedule, seats, status },
   });
+  await logActivity({ action: "Session modifiée", entityType: "Session", entityId: id });
   refresh();
   redirect("/admin/formations");
 }
@@ -103,5 +109,6 @@ export async function deleteSession(id: string) {
   await prisma.attendance.deleteMany({ where: { courseSessionId: id } });
   await prisma.registration.deleteMany({ where: { courseSessionId: id } });
   await prisma.courseSession.delete({ where: { id } });
+  await logActivity({ action: "Session supprimée", entityType: "Session", entityId: id });
   refresh();
 }
