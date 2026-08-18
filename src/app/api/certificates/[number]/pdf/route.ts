@@ -65,6 +65,7 @@ export async function GET(
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `${disposition}; filename="${certificate.certificateNumber}.pdf"`,
+      "Cache-Control": "no-store, must-revalidate",
     },
   });
 }
