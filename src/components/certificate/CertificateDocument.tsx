@@ -50,23 +50,23 @@ const styles = StyleSheet.create({
   body: { fontSize: 10.5, lineHeight: 1.5, textAlign: "justify", width: "80%" },
   bold: { fontFamily: "Helvetica-Bold" },
   closing: { fontSize: 10, lineHeight: 1.5, textAlign: "justify", width: "80%", marginTop: 8 },
+  spacer: { flexGrow: 1 },
   bottomRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
-    marginTop: 14,
   },
   qrBlock: { alignItems: "center" },
   qr: { width: 50, height: 50 },
   qrCaption: { fontSize: 6.5, color: "#6b7280", marginTop: 2, textAlign: "center", width: 62 },
   verifyUrl: { fontSize: 7, color: "#6b7280", marginTop: 3, textAlign: "center" },
-  dateLine: { fontSize: 10, marginBottom: 4, textAlign: "center" },
+  dateLine: { fontSize: 10, marginBottom: 12, textAlign: "center" },
   signatureBlock: { alignItems: "center", width: 190 },
   signatureLine: {
     width: 110,
     borderBottomWidth: 1,
     borderBottomColor: "#9ca3af",
-    marginTop: 18,
+    marginTop: 30,
     marginBottom: 4,
   },
   signatureLabel: { fontSize: 10 },
@@ -188,6 +188,8 @@ export default function CertificateDocument(props: CertificateDocumentProps) {
                 droit.
               </Text>
             </View>
+
+            <View style={styles.spacer} />
 
             <View style={styles.bottomRow}>
               <View style={styles.signatureBlock}>
