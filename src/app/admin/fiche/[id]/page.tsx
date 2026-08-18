@@ -101,6 +101,7 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
             1. Informations personnelles
           </h2>
           <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+            <Field label="Matricule étudiant" value={student.studentNumber ?? "—"} />
             <Field label="Nom complet" value={`${student.firstName} ${student.lastName}`} />
             <Field label="Date de naissance" value={formatDate(student.dateOfBirth)} />
             <Field label="Lieu de naissance" value={student.placeOfBirth ?? "—"} />

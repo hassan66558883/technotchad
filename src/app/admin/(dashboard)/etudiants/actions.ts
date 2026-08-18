@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { buildCertificateNumber, buildInscriptionNumber, buildVerifyUrl } from "@/lib/certificate";
 import { sendMail } from "@/lib/email";
 import { logActivity } from "@/lib/activityLog";
-import { provisionStudentAccount } from "@/lib/studentAccount";
+import { provisionStudentAccount, assignStudentNumber } from "@/lib/studentAccount";
 
 function str(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
@@ -186,6 +186,7 @@ export async function createStudent(
   });
 
   void provisionStudentAccount(student.id);
+  void assignStudentNumber(student.id);
 
   if (enrollment) {
     const [type, id] = enrollment.split(":");

@@ -2,6 +2,21 @@ import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { sendMail } from "@/lib/email";
+import { buildStudentNumber } from "@/lib/certificate";
+
+export async function assignStudentNumber(studentId: string) {
+  const student = await prisma.student.findUnique({ where: { id: studentId } });
+  if (!student || student.studentNumber) return student?.studentNumber ?? null;
+
+  const year = student.createdAt.getFullYear();
+  const count = await prisma.student.count({
+    where: { studentNumber: { startsWith: `ETU-${year}-` } },
+  });
+  const studentNumber = buildStudentNumber(year, count + 1);
+
+  await prisma.student.update({ where: { id: studentId }, data: { studentNumber } });
+  return studentNumber;
+}
 
 function generatePassword() {
   return crypto.randomBytes(9).toString("base64url");

@@ -67,6 +67,9 @@ export default async function MonEspacePage() {
           Bonjour {student.firstName} 👋
         </h1>
         <p className="text-sm text-slate">Voici un aperçu de vos formations, paiements et certificats.</p>
+        {student.studentNumber && (
+          <p className="mt-1 font-mono text-xs text-slate/70">Matricule : {student.studentNumber}</p>
+        )}
       </div>
 
       <div className="rounded-2xl border border-line bg-white shadow-sm">

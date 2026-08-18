@@ -27,9 +27,10 @@ model User {
 }
 
 model Student {
-  id        String   @id @default(cuid())
-  userId    String?  @unique
-  user      User?    @relation(fields: [userId], references: [id])
+  id             String   @id @default(cuid())
+  studentNumber  String?  @unique
+  userId         String?  @unique
+  user           User?    @relation(fields: [userId], references: [id])
   firstName String
   lastName  String
   phone     String

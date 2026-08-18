@@ -25,6 +25,7 @@ export default async function EtudiantsPage({
               { lastName: { contains: q, mode: "insensitive" } },
               { email: { contains: q, mode: "insensitive" } },
               { phone: { contains: q, mode: "insensitive" } },
+              { studentNumber: { contains: q, mode: "insensitive" } },
             ],
           }
         : undefined,
@@ -72,7 +73,7 @@ export default async function EtudiantsPage({
           type="search"
           name="q"
           defaultValue={q}
-          placeholder="Rechercher un étudiant (nom, email, téléphone)"
+          placeholder="Rechercher un étudiant (nom, email, téléphone, matricule)"
           className="w-full max-w-sm rounded-full border border-line bg-white px-4 py-2 text-sm outline-none focus:border-blue"
         />
         {q && (
@@ -99,6 +100,7 @@ export default async function EtudiantsPage({
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="text-xs uppercase tracking-wide text-slate">
+                  <th className="px-6 py-3 font-semibold">Matricule</th>
                   <th className="px-6 py-3 font-semibold">Nom</th>
                   <th className="px-6 py-3 font-semibold">Contact</th>
                   <th className="px-6 py-3 font-semibold">Inscriptions</th>
@@ -108,6 +110,9 @@ export default async function EtudiantsPage({
               <tbody>
                 {students.map((student) => (
                   <tr key={student.id} className="border-t border-line">
+                    <td className="px-6 py-3.5 font-mono text-xs text-slate">
+                      {student.studentNumber ?? "—"}
+                    </td>
                     <td className="px-6 py-3.5 font-medium text-navy">
                       <Link href={`/admin/etudiants/${student.id}`} className="hover:text-blue">
                         {student.firstName} {student.lastName}

@@ -58,6 +58,9 @@ export default async function StudentDetailPage({
               <p className="text-sm text-slate">
                 {student.phone} · {student.email}
               </p>
+              {student.studentNumber && (
+                <p className="mt-0.5 font-mono text-xs text-slate/70">{student.studentNumber}</p>
+              )}
             </div>
           </div>
           {student.userId ? (
