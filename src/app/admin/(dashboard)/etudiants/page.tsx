@@ -10,9 +10,24 @@ function formatDate(date: Date) {
   return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date);
 }
 
-export default async function EtudiantsPage() {
+export default async function EtudiantsPage({
+  searchParams,
+}: PageProps<"/admin/etudiants">) {
+  const params = await searchParams;
+  const q = typeof params.q === "string" ? params.q.trim() : "";
+
   const [students, sessions, workshops] = await Promise.all([
     prisma.student.findMany({
+      where: q
+        ? {
+            OR: [
+              { firstName: { contains: q, mode: "insensitive" } },
+              { lastName: { contains: q, mode: "insensitive" } },
+              { email: { contains: q, mode: "insensitive" } },
+              { phone: { contains: q, mode: "insensitive" } },
+            ],
+          }
+        : undefined,
       orderBy: { createdAt: "desc" },
       include: { registrations: true, certificates: true },
     }),
@@ -45,18 +60,37 @@ export default async function EtudiantsPage() {
       <div>
         <h1 className="text-lg font-semibold text-navy">Étudiants</h1>
         <p className="text-sm text-slate">
-          {students.length} étudiant{students.length > 1 ? "s" : ""} enregistré
-          {students.length > 1 ? "s" : ""}.
+          {students.length} étudiant{students.length > 1 ? "s" : ""}
+          {q ? ` trouvé${students.length > 1 ? "s" : ""} pour « ${q} »` : " enregistré" + (students.length > 1 ? "s" : "")}.
         </p>
       </div>
 
       <CreateStudentForm enrollmentOptions={enrollmentOptions} />
 
+      <form className="flex gap-3">
+        <input
+          type="search"
+          name="q"
+          defaultValue={q}
+          placeholder="Rechercher un étudiant (nom, email, téléphone)"
+          className="w-full max-w-sm rounded-full border border-line bg-white px-4 py-2 text-sm outline-none focus:border-blue"
+        />
+        {q && (
+          <Link
+            href="/admin/etudiants"
+            className="rounded-full border border-line px-4 py-2 text-xs font-semibold text-slate hover:border-blue hover:text-blue"
+          >
+            Réinitialiser
+          </Link>
+        )}
+      </form>
+
       {students.length === 0 ? (
         <div className="rounded-2xl border border-line bg-white p-12 text-center shadow-sm">
           <p className="text-sm text-slate">
-            Aucun étudiant pour le moment. Ajoutez-en un ci-dessus, ou laissez les
-            inscriptions faites depuis le site public créer un profil automatiquement.
+            {q
+              ? `Aucun étudiant ne correspond à « ${q} ».`
+              : "Aucun étudiant pour le moment. Ajoutez-en un ci-dessus, ou laissez les inscriptions faites depuis le site public créer un profil automatiquement."}
           </p>
         </div>
       ) : (

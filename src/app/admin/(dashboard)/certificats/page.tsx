@@ -14,8 +14,13 @@ function formatDate(date: Date) {
   }).format(date);
 }
 
-export default async function CertificatsPage() {
-  const certificates = await prisma.certificate.findMany({
+export default async function CertificatsPage({
+  searchParams,
+}: PageProps<"/admin/certificats">) {
+  const params = await searchParams;
+  const q = typeof params.q === "string" ? params.q.trim() : "";
+
+  const allCertificates = await prisma.certificate.findMany({
     orderBy: { issuedAt: "desc" },
     include: {
       student: true,
@@ -25,20 +30,53 @@ export default async function CertificatsPage() {
     },
   });
 
+  const certificates = q
+    ? allCertificates.filter((cert) => {
+        const haystack = [
+          cert.certificateNumber,
+          cert.student.firstName,
+          cert.student.lastName,
+        ]
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(q.toLowerCase());
+      })
+    : allCertificates;
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-lg font-semibold text-navy">Certificats</h1>
         <p className="text-sm text-slate">
-          {certificates.length} certificat{certificates.length > 1 ? "s" : ""} émis.
+          {certificates.length} certificat{certificates.length > 1 ? "s" : ""}
+          {q ? ` trouvé${certificates.length > 1 ? "s" : ""} pour « ${q} »` : " émis"}.
         </p>
       </div>
+
+      <form className="flex gap-3">
+        <input
+          type="search"
+          name="q"
+          defaultValue={q}
+          placeholder="Rechercher (étudiant, n° de certificat)"
+          className="w-full max-w-sm rounded-full border border-line bg-white px-4 py-2 text-sm outline-none focus:border-blue"
+        />
+        {q && (
+          <Link
+            href="/admin/certificats"
+            className="rounded-full border border-line px-4 py-2 text-xs font-semibold text-slate hover:border-blue hover:text-blue"
+          >
+            Réinitialiser
+          </Link>
+        )}
+      </form>
 
       {certificates.length === 0 ? (
         <div className="rounded-2xl border border-line bg-white p-12 text-center shadow-sm">
           <p className="text-sm text-slate">
-            Aucun certificat émis pour le moment. Générez-en un depuis la fiche
-            d&apos;un étudiant après confirmation de son inscription.
+            {q
+              ? `Aucun certificat ne correspond à « ${q} ».`
+              : "Aucun certificat émis pour le moment. Générez-en un depuis la fiche d'un étudiant après confirmation de son inscription."}
           </p>
         </div>
       ) : (

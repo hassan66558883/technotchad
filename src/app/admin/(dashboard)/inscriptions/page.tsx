@@ -13,8 +13,13 @@ function formatDate(date: Date) {
   }).format(date);
 }
 
-export default async function InscriptionsPage() {
-  const registrations = await prisma.registration.findMany({
+export default async function InscriptionsPage({
+  searchParams,
+}: PageProps<"/admin/inscriptions">) {
+  const params = await searchParams;
+  const q = typeof params.q === "string" ? params.q.trim() : "";
+
+  const allRegistrations = await prisma.registration.findMany({
     orderBy: { registeredAt: "desc" },
     include: {
       student: true,
@@ -24,21 +29,56 @@ export default async function InscriptionsPage() {
     },
   });
 
+  const registrations = q
+    ? allRegistrations.filter((reg) => {
+        const haystack = [
+          reg.student.firstName,
+          reg.student.lastName,
+          reg.student.email,
+          reg.courseSession?.course.title,
+          reg.workshop?.title,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(q.toLowerCase());
+      })
+    : allRegistrations;
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-lg font-semibold text-navy">Inscriptions</h1>
         <p className="text-sm text-slate">
-          {registrations.length} inscription{registrations.length > 1 ? "s" : ""} aux
-          formations et workshops.
+          {registrations.length} inscription{registrations.length > 1 ? "s" : ""}
+          {q ? ` trouvée${registrations.length > 1 ? "s" : ""} pour « ${q} »` : " aux formations et workshops"}.
         </p>
       </div>
+
+      <form className="flex gap-3">
+        <input
+          type="search"
+          name="q"
+          defaultValue={q}
+          placeholder="Rechercher (étudiant, formation)"
+          className="w-full max-w-sm rounded-full border border-line bg-white px-4 py-2 text-sm outline-none focus:border-blue"
+        />
+        {q && (
+          <Link
+            href="/admin/inscriptions"
+            className="rounded-full border border-line px-4 py-2 text-xs font-semibold text-slate hover:border-blue hover:text-blue"
+          >
+            Réinitialiser
+          </Link>
+        )}
+      </form>
 
       {registrations.length === 0 ? (
         <div className="rounded-2xl border border-line bg-white p-12 text-center shadow-sm">
           <p className="text-sm text-slate">
-            Aucune inscription pour le moment. Les inscriptions faites depuis le
-            site public apparaîtront ici.
+            {q
+              ? `Aucune inscription ne correspond à « ${q} ».`
+              : "Aucune inscription pour le moment. Les inscriptions faites depuis le site public apparaîtront ici."}
           </p>
         </div>
       ) : (
