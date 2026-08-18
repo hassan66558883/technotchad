@@ -68,6 +68,10 @@ export default async function AdminFormationsPage() {
           placeholder="Prix (ex. 45 000 FCFA)"
           className="rounded-lg border border-line px-4 py-2.5 text-sm outline-none focus:border-blue"
         />
+        <label className="flex items-center gap-2 text-sm text-ink sm:col-span-2">
+          <input type="checkbox" name="requiresFullPayment" className="h-4 w-4 rounded border-line" />
+          Paiement intégral requis avant émission du certificat
+        </label>
         <button
           type="submit"
           className="sm:col-span-2 rounded-full bg-blue px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-dark"

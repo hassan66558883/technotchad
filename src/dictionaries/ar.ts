@@ -235,6 +235,9 @@ const ar: typeof fr = {
     notFoundTitle: "الشهادة غير موجودة",
     notFoundText: (number: string) =>
       `لا توجد شهادة مطابقة للرقم ${number}. تحققوا من الرقم أو اتصلوا بتكنوتشاد.`,
+    revokedTitle: "شهادة ملغاة",
+    revokedText: "تم إلغاء هذه الشهادة من قبل تكنوتشاد ولم تعد صالحة.",
+    revokedOn: "تاريخ الإلغاء",
   },
   verifyInscription: {
     authenticTitle: "تسجيل أصلي",

@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import RevokeCertificateButton from "@/components/admin/RevokeCertificateButton";
+import ReinstateCertificateButton from "@/components/admin/ReinstateCertificateButton";
 
 export const metadata = { title: "Certificats — Admin TechnoTchad" };
 export const dynamic = "force-dynamic";
@@ -42,24 +44,46 @@ export default async function CertificatsPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {certificates.map((cert) => (
-            <Link
+            <div
               key={cert.id}
-              href={`/verify/${cert.certificateNumber}`}
               className="rounded-2xl border border-line bg-white p-6 shadow-sm transition-shadow hover:shadow-lg"
             >
-              <span className="text-xs font-bold uppercase tracking-wide text-blue">
-                {cert.certificateNumber}
-              </span>
-              <h2 className="mt-2 text-base font-semibold text-navy">
-                {cert.student.firstName} {cert.student.lastName}
-              </h2>
-              <p className="mt-1 text-sm text-slate">
-                {cert.registration.courseSession?.course.title ?? cert.registration.workshop?.title}
-              </p>
-              <p className="mt-3 text-xs text-slate/70">
-                Émis le {formatDate(cert.issuedAt)}
-              </p>
-            </Link>
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-xs font-bold uppercase tracking-wide text-blue">
+                  {cert.certificateNumber}
+                </span>
+                <span
+                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                    cert.status === "REVOKED"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-emerald-100 text-emerald-700"
+                  }`}
+                >
+                  {cert.status === "REVOKED" ? "Révoqué" : "Actif"}
+                </span>
+              </div>
+              <Link href={`/verify/${cert.certificateNumber}`}>
+                <h2 className="mt-2 text-base font-semibold text-navy hover:text-blue">
+                  {cert.student.firstName} {cert.student.lastName}
+                </h2>
+                <p className="mt-1 text-sm text-slate">
+                  {cert.registration.courseSession?.course.title ?? cert.registration.workshop?.title}
+                </p>
+                <p className="mt-3 text-xs text-slate/70">
+                  Émis le {formatDate(cert.issuedAt)}
+                </p>
+              </Link>
+              {cert.status === "REVOKED" && cert.revokedReason && (
+                <p className="mt-2 text-xs text-red-600">Motif : {cert.revokedReason}</p>
+              )}
+              <div className="mt-4">
+                {cert.status === "REVOKED" ? (
+                  <ReinstateCertificateButton certificateId={cert.id} />
+                ) : (
+                  <RevokeCertificateButton certificateId={cert.id} />
+                )}
+              </div>
+            </div>
           ))}
         </div>
       )}

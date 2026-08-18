@@ -30,6 +30,7 @@ function readWorkshopForm(formData: FormData) {
     date: String(formData.get("date") ?? "").trim(),
     seats: Number(formData.get("seats") ?? 0) || 0,
     status: String(formData.get("status") ?? "UPCOMING"),
+    requiresFullPayment: formData.get("requiresFullPayment") === "on",
   };
 }
 
@@ -48,6 +49,7 @@ export async function createWorkshop(formData: FormData) {
       date: new Date(f.date),
       seats: f.seats,
       status: validStatuses.has(f.status) ? f.status : "UPCOMING",
+      requiresFullPayment: f.requiresFullPayment,
     },
   });
   refresh();
@@ -67,6 +69,7 @@ export async function updateWorkshop(slug: string, formData: FormData) {
       date: new Date(f.date),
       seats: f.seats,
       status: validStatuses.has(f.status) ? f.status : "UPCOMING",
+      requiresFullPayment: f.requiresFullPayment,
     },
   });
   refresh();

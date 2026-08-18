@@ -26,11 +26,12 @@ export async function createCourse(formData: FormData) {
   const price = String(formData.get("price") ?? "").trim();
   const durationLabel = String(formData.get("durationLabel") ?? "").trim();
   const imageUrl = String(formData.get("imageUrl") ?? "").trim();
+  const requiresFullPayment = formData.get("requiresFullPayment") === "on";
   if (!category || !title || !description || !price || !durationLabel) return;
 
   const slug = slugify(title);
   await prisma.course.create({
-    data: { slug, category, title, description, price, durationLabel, imageUrl: imageUrl || null },
+    data: { slug, category, title, description, price, durationLabel, imageUrl: imageUrl || null, requiresFullPayment },
   });
   refresh();
 }
@@ -42,11 +43,12 @@ export async function updateCourse(slug: string, formData: FormData) {
   const price = String(formData.get("price") ?? "").trim();
   const durationLabel = String(formData.get("durationLabel") ?? "").trim();
   const imageUrl = String(formData.get("imageUrl") ?? "").trim();
+  const requiresFullPayment = formData.get("requiresFullPayment") === "on";
   if (!category || !title || !description || !price || !durationLabel) return;
 
   await prisma.course.update({
     where: { slug },
-    data: { category, title, description, price, durationLabel, imageUrl: imageUrl || null },
+    data: { category, title, description, price, durationLabel, imageUrl: imageUrl || null, requiresFullPayment },
   });
   refresh();
   redirect("/admin/formations");

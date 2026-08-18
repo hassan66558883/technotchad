@@ -226,6 +226,9 @@ const fr = {
     notFoundTitle: "Certificat introuvable",
     notFoundText: (number: string) =>
       `Aucun certificat ne correspond au numéro ${number}. Vérifiez le numéro ou contactez TechnoTchad.`,
+    revokedTitle: "Certificat révoqué",
+    revokedText: "Ce certificat a été révoqué par TechnoTchad et n'est plus valide.",
+    revokedOn: "Révoqué le",
   },
   verifyInscription: {
     authenticTitle: "Inscription authentique",

@@ -48,7 +48,38 @@ export default async function VerifyCertificatePage({
     <section className="bg-mist py-20 sm:py-24">
       <Container className="max-w-xl">
         <div className="rounded-2xl border border-line bg-white p-10 text-center shadow-sm">
-          {certificate ? (
+          {certificate && certificate.status === "REVOKED" ? (
+            <>
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-3xl">
+                ✕
+              </span>
+              <h1 className="mt-5 text-2xl font-bold text-navy">{v.revokedTitle}</h1>
+              <p className="mt-2 text-sm text-slate">{v.revokedText}</p>
+
+              <div className="mt-8 space-y-3 rounded-xl bg-mist p-6 text-left">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate">{v.certNumber}</span>
+                  <span className="font-semibold text-navy">
+                    {certificate.certificateNumber}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate">{v.holder}</span>
+                  <span className="font-semibold text-navy">
+                    {certificate.student.firstName} {certificate.student.lastName}
+                  </span>
+                </div>
+                {certificate.revokedAt && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate">{v.revokedOn}</span>
+                    <span className="font-semibold text-navy">
+                      {formatDate(certificate.revokedAt, lang)}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : certificate ? (
             <>
               <span className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-3xl">
                 ✓

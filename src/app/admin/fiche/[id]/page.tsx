@@ -7,6 +7,7 @@ import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 import { canAccessPath } from "@/lib/permissions";
 import { buildInscriptionVerifyUrl } from "@/lib/certificate";
 import PrintButton from "@/components/admin/PrintButton";
+import { computePaymentStatus, paymentStatusLabels, paymentStatusStyles } from "@/lib/payment";
 
 function formatDate(date: Date | null | undefined) {
   if (!date) return "—";
@@ -47,6 +48,11 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
     .filter((p) => p.status === "PAID")
     .reduce((sum, p) => sum + p.amount, 0);
   const remaining = registration.paymentAmount != null ? registration.paymentAmount - paidAmount : null;
+  const paymentStatus = computePaymentStatus({
+    totalDue: registration.paymentAmount,
+    totalPaid: paidAmount,
+    dueDate: registration.paymentDueDate,
+  });
 
   const qrCodeUrl = registration.inscriptionNumber
     ? await QRCode.toDataURL(buildInscriptionVerifyUrl(registration.inscriptionNumber), {
@@ -146,6 +152,45 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
             <Field label="Reste à payer" value={formatMoney(remaining)} />
             <Field label="Mode de paiement" value={registration.paymentMethod ?? "—"} />
           </dl>
+
+          <div className="mt-3 flex items-center gap-2 print:hidden">
+            <span className="text-xs uppercase tracking-wide text-slate">Statut :</span>
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-semibold ${paymentStatusStyles[paymentStatus]}`}
+            >
+              {paymentStatusLabels[paymentStatus]}
+            </span>
+          </div>
+
+          {registration.payments.length > 0 && (
+            <div className="mt-4 overflow-hidden rounded-lg border border-line print:border-navy">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="bg-mist text-slate print:bg-transparent">
+                    <th className="px-3 py-2 font-semibold">Reçu</th>
+                    <th className="px-3 py-2 font-semibold">Date</th>
+                    <th className="px-3 py-2 font-semibold">Montant</th>
+                    <th className="px-3 py-2 font-semibold">Méthode</th>
+                    <th className="px-3 py-2 font-semibold">Statut</th>
+                    <th className="px-3 py-2 font-semibold">Note</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {registration.payments.map((p) => (
+                    <tr key={p.id} className="border-t border-line">
+                      <td className="px-3 py-2 font-mono">{p.reference ?? "—"}</td>
+                      <td className="px-3 py-2">{formatDate(p.paidAt)}</td>
+                      <td className="px-3 py-2 font-semibold">{formatMoney(p.amount)}</td>
+                      <td className="px-3 py-2">{p.method}</td>
+                      <td className="px-3 py-2">{p.status}</td>
+                      <td className="px-3 py-2">{p.note ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
           <Link
             href="/admin/paiements"
             className="mt-3 inline-block text-xs font-semibold text-blue hover:text-blue-dark print:hidden"

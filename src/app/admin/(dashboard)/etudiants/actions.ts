@@ -42,10 +42,25 @@ function scholarshipPercent(formData: FormData) {
 export async function generateCertificate(registrationId: string) {
   const registration = await prisma.registration.findUnique({
     where: { id: registrationId },
-    include: { certificate: true },
+    include: {
+      certificate: true,
+      payments: true,
+      courseSession: { include: { course: true } },
+      workshop: true,
+    },
   });
 
   if (!registration || registration.certificate) return;
+
+  const requiresFullPayment =
+    registration.courseSession?.course.requiresFullPayment ?? registration.workshop?.requiresFullPayment ?? false;
+  if (requiresFullPayment) {
+    const paid = registration.payments
+      .filter((p) => p.status === "PAID")
+      .reduce((sum, p) => sum + p.amount, 0);
+    const remaining = (registration.paymentAmount ?? 0) - paid;
+    if (remaining > 0) return;
+  }
 
   const year = new Date().getFullYear();
   const count = await prisma.certificate.count({
@@ -73,6 +88,43 @@ export async function generateCertificate(registrationId: string) {
   revalidatePath(`/admin/etudiants/${registration.studentId}`);
   revalidatePath("/admin/certificats");
   revalidatePath("/admin/inscriptions");
+}
+
+export async function revokeCertificate(certificateId: string, reason: string) {
+  const trimmedReason = reason.trim();
+  if (!trimmedReason) return;
+
+  const certificate = await prisma.certificate.update({
+    where: { id: certificateId },
+    data: { status: "REVOKED", revokedAt: new Date(), revokedReason: trimmedReason },
+  });
+
+  await logActivity({
+    action: `Certificat révoqué (${certificate.certificateNumber}) — ${trimmedReason}`,
+    entityType: "Certificat",
+    entityId: certificate.id,
+  });
+
+  revalidatePath("/admin/etudiants");
+  revalidatePath(`/admin/etudiants/${certificate.studentId}`);
+  revalidatePath("/admin/certificats");
+}
+
+export async function reinstateCertificate(certificateId: string) {
+  const certificate = await prisma.certificate.update({
+    where: { id: certificateId },
+    data: { status: "ACTIVE", revokedAt: null, revokedReason: null },
+  });
+
+  await logActivity({
+    action: `Certificat réactivé (${certificate.certificateNumber})`,
+    entityType: "Certificat",
+    entityId: certificate.id,
+  });
+
+  revalidatePath("/admin/etudiants");
+  revalidatePath(`/admin/etudiants/${certificate.studentId}`);
+  revalidatePath("/admin/certificats");
 }
 
 export type CreateStudentState = { error?: string } | undefined;

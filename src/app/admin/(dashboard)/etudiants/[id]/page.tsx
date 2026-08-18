@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import GenerateCertificateButton from "@/components/admin/GenerateCertificateButton";
+import RevokeCertificateButton from "@/components/admin/RevokeCertificateButton";
+import ReinstateCertificateButton from "@/components/admin/ReinstateCertificateButton";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +28,7 @@ export default async function StudentDetailPage({
           courseSession: { include: { course: true } },
           workshop: true,
           certificate: true,
+          payments: true,
         },
         orderBy: { registeredAt: "desc" },
       },
@@ -89,19 +92,45 @@ export default async function StudentDetailPage({
                     Fiche d&apos;inscription
                   </Link>
                   {reg.certificate ? (
-                    <Link
-                      href={`/verify/${reg.certificate.certificateNumber}`}
-                      className="rounded-full bg-emerald-100 px-4 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-200"
-                    >
-                      ✓ Certificat {reg.certificate.certificateNumber}
-                    </Link>
-                  ) : reg.status === "CONFIRMED" ? (
-                    <GenerateCertificateButton registrationId={reg.id} />
-                  ) : (
+                    <>
+                      <Link
+                        href={`/verify/${reg.certificate.certificateNumber}`}
+                        className={`rounded-full px-4 py-1.5 text-xs font-semibold ${
+                          reg.certificate.status === "REVOKED"
+                            ? "bg-red-100 text-red-700 hover:bg-red-200"
+                            : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
+                        }`}
+                      >
+                        {reg.certificate.status === "REVOKED" ? "✕" : "✓"} Certificat{" "}
+                        {reg.certificate.certificateNumber}
+                      </Link>
+                      {reg.certificate.status === "REVOKED" ? (
+                        <ReinstateCertificateButton certificateId={reg.certificate.id} />
+                      ) : (
+                        <RevokeCertificateButton certificateId={reg.certificate.id} />
+                      )}
+                    </>
+                  ) : reg.status !== "CONFIRMED" ? (
                     <span className="text-xs text-slate/60">
                       Confirmez l&apos;inscription pour émettre un certificat
                     </span>
-                  )}
+                  ) : (() => {
+                    const requiresFullPayment =
+                      reg.courseSession?.course.requiresFullPayment ??
+                      reg.workshop?.requiresFullPayment ??
+                      false;
+                    if (!requiresFullPayment) return <GenerateCertificateButton registrationId={reg.id} />;
+                    const paid = reg.payments
+                      .filter((p) => p.status === "PAID")
+                      .reduce((sum, p) => sum + p.amount, 0);
+                    const remaining = (reg.paymentAmount ?? 0) - paid;
+                    if (remaining <= 0) return <GenerateCertificateButton registrationId={reg.id} />;
+                    return (
+                      <span className="text-xs text-amber-700">
+                        Paiement intégral requis ({remaining.toLocaleString("fr-FR")} FCFA restants)
+                      </span>
+                    );
+                  })()}
                 </div>
               </div>
             ))}

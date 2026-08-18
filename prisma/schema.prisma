@@ -23,6 +23,7 @@ model User {
 
   student Student?
   logs    ActivityLog[]
+  recordedPayments Payment[]
 }
 
 model Student {
@@ -74,6 +75,7 @@ model Course {
   imageUrl    String?
   price       String
   durationLabel String
+  requiresFullPayment Boolean @default(false)
 
   sessions CourseSession[]
 }
@@ -105,6 +107,7 @@ model Workshop {
   date          DateTime
   seats         Int
   status        String   @default("UPCOMING")
+  requiresFullPayment Boolean @default(false)
 
   registrations Registration[]
 }
@@ -133,6 +136,7 @@ model Registration {
   paymentAmount     Int?
   paidAmount        Int?
   paymentMethod     String?
+  paymentDueDate    DateTime?
   documentsProvided String? // comma-separated
 
   attendance  Attendance[]
@@ -159,8 +163,14 @@ model Payment {
   method         String
   status         String   @default("PENDING")
   paidAt         DateTime?
+  reference      String?  @unique
+  note           String?
+  recordedById   String?
+  recordedBy     User?    @relation(fields: [recordedById], references: [id])
+  createdAt      DateTime @default(now())
 }
 
+// status: ACTIVE | REVOKED
 model Certificate {
   id                String   @id @default(cuid())
   registrationId    String   @unique
@@ -170,6 +180,9 @@ model Certificate {
   certificateNumber String   @unique
   issuedAt          DateTime @default(now())
   qrCodeUrl         String?
+  status            String   @default("ACTIVE")
+  revokedAt         DateTime?
+  revokedReason     String?
 }
 
 // --- Public content: services, projects, articles, gallery, testimonials -
