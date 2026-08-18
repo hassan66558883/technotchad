@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { buildCertificateNumber, buildInscriptionNumber, buildVerifyUrl } from "@/lib/certificate";
 import { sendMail } from "@/lib/email";
 import { logActivity } from "@/lib/activityLog";
+import { provisionStudentAccount } from "@/lib/studentAccount";
 
 function str(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
@@ -110,6 +111,18 @@ export async function revokeCertificate(certificateId: string, reason: string) {
   revalidatePath("/admin/certificats");
 }
 
+export async function grantPortalAccess(studentId: string) {
+  const result = await provisionStudentAccount(studentId);
+  if (result) {
+    await logActivity({
+      action: `Accès à l'espace étudiant créé (${result.email})`,
+      entityType: "Étudiant",
+      entityId: studentId,
+    });
+  }
+  revalidatePath(`/admin/etudiants/${studentId}`);
+}
+
 export async function reinstateCertificate(certificateId: string) {
   const certificate = await prisma.certificate.update({
     where: { id: certificateId },
@@ -171,6 +184,8 @@ export async function createStudent(
     entityType: "Étudiant",
     entityId: student.id,
   });
+
+  void provisionStudentAccount(student.id);
 
   if (enrollment) {
     const [type, id] = enrollment.split(":");

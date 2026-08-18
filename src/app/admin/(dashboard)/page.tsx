@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 
 const statusLabels: Record<string, string> = {
   PENDING: "En attente",
@@ -26,6 +29,11 @@ export const dynamic = "force-dynamic";
 export default async function AdminDashboardPage({
   searchParams,
 }: PageProps<"/admin">) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(SESSION_COOKIE)?.value;
+  const session = token ? await verifySessionToken(token) : null;
+  if (session?.role === "STUDENT") redirect("/admin/mon-espace");
+
   const params = await searchParams;
   const denied = params.denied === "1";
 

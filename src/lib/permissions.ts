@@ -43,7 +43,7 @@ export const ROLE_PATHS: Record<string, "*" | string[]> = {
   ],
   ACCOUNTANT: ["/admin/compte", "/admin/paiements"],
   EDITOR: ["/admin/compte", ...CONTENT_PATHS],
-  STUDENT: [],
+  STUDENT: ["/admin/compte", "/admin/mon-espace"],
 };
 
 export function canAccessPath(role: string, pathname: string): boolean {

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import GenerateCertificateButton from "@/components/admin/GenerateCertificateButton";
 import RevokeCertificateButton from "@/components/admin/RevokeCertificateButton";
 import ReinstateCertificateButton from "@/components/admin/ReinstateCertificateButton";
+import GrantPortalAccessButton from "@/components/admin/GrantPortalAccessButton";
 
 export const dynamic = "force-dynamic";
 
@@ -44,19 +45,28 @@ export default async function StudentDetailPage({
       </Link>
 
       <div className="rounded-2xl border border-line bg-white p-6 shadow-sm">
-        <div className="flex items-center gap-4">
-          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-navy text-lg font-bold text-white">
-            {student.firstName[0]}
-            {student.lastName[0]}
-          </span>
-          <div>
-            <h1 className="text-lg font-semibold text-navy">
-              {student.firstName} {student.lastName}
-            </h1>
-            <p className="text-sm text-slate">
-              {student.phone} · {student.email}
-            </p>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-navy text-lg font-bold text-white">
+              {student.firstName[0]}
+              {student.lastName[0]}
+            </span>
+            <div>
+              <h1 className="text-lg font-semibold text-navy">
+                {student.firstName} {student.lastName}
+              </h1>
+              <p className="text-sm text-slate">
+                {student.phone} · {student.email}
+              </p>
+            </div>
           </div>
+          {student.userId ? (
+            <span className="rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+              ✓ Espace étudiant actif
+            </span>
+          ) : (
+            <GrantPortalAccessButton studentId={student.id} />
+          )}
         </div>
       </div>
 

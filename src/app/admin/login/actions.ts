@@ -37,5 +37,5 @@ export async function login(_prevState: LoginState, formData: FormData): Promise
     maxAge: SESSION_COOKIE_MAX_AGE,
   });
 
-  redirect("/admin");
+  redirect(user.role === "STUDENT" ? "/admin/mon-espace" : "/admin");
 }

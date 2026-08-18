@@ -57,8 +57,41 @@ const menu: { section: string; items: { label: string; href: string }[] }[] = [
   },
 ];
 
+const studentMenu = [
+  { label: "Mon espace", href: "/admin/mon-espace" },
+  { label: "Mon compte", href: "/admin/compte" },
+];
+
 export default function AdminSidebar({ role }: { role: string }) {
   const pathname = usePathname();
+
+  if (role === "STUDENT") {
+    return (
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-white/10 bg-navy text-white lg:flex">
+        <div className="flex h-16 items-center gap-2 border-b border-white/10 px-6">
+          <Image src="/logo-mark-light.png" alt="" width={400} height={582} className="h-8 w-auto" />
+          <span className="text-sm font-bold tracking-tight">
+            TECHNOTCHAD <span className="text-cyan">ESPACE ÉTUDIANT</span>
+          </span>
+        </div>
+        <nav className="flex-1 space-y-0.5 overflow-y-auto px-4 py-6">
+          {studentMenu.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`block rounded-lg px-3 py-2 text-sm ${
+                pathname === item.href
+                  ? "bg-white/10 font-semibold text-white"
+                  : "text-white/70 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+      </aside>
+    );
+  }
 
   const visibleMenu = menu
     .map((group) => ({
