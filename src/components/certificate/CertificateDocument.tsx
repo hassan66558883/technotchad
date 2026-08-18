@@ -1,53 +1,88 @@
 import { Document, Page, View, Text, Image, StyleSheet } from "@react-pdf/renderer";
 
+const NAVY = "#1c2a4a";
+const GOLD = "#b8860b";
+
 const styles = StyleSheet.create({
   page: {
-    padding: 56,
-    fontSize: 11,
+    padding: 22,
     fontFamily: "Helvetica",
     color: "#111827",
   },
-  logo: { width: 130, alignSelf: "center", marginBottom: 10 },
-  country: { textAlign: "center", fontSize: 13, fontFamily: "Helvetica-Bold" },
-  motto: { textAlign: "center", fontSize: 9, fontFamily: "Helvetica-Oblique", marginTop: 2 },
+  outerBorder: {
+    flex: 1,
+    borderWidth: 3,
+    borderColor: NAVY,
+    padding: 6,
+  },
+  innerBorder: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: GOLD,
+    padding: 28,
+    position: "relative",
+  },
+  logo: { width: 90, height: 90, alignSelf: "center", marginBottom: 6, objectFit: "contain" },
+  country: { textAlign: "center", fontSize: 14, fontFamily: "Helvetica-Bold", letterSpacing: 0.5 },
+  motto: { textAlign: "center", fontSize: 9, fontFamily: "Helvetica-Oblique", marginTop: 2, color: "#374151" },
   institution: {
     textAlign: "center",
     fontSize: 12,
     fontFamily: "Helvetica-Bold",
-    marginTop: 18,
+    marginTop: 12,
+    color: NAVY,
   },
-  address: { textAlign: "center", fontSize: 9, marginTop: 4, color: "#374151" },
-  rule: { borderBottomWidth: 1, borderBottomColor: "#111827", marginTop: 16, marginBottom: 16 },
+  address: { textAlign: "center", fontSize: 8.5, marginTop: 3, color: "#4b5563" },
+  rule: { borderBottomWidth: 1, borderBottomColor: "#d1d5db", marginTop: 10, marginBottom: 4 },
   refRow: { flexDirection: "row", justifyContent: "flex-end" },
-  refText: { fontSize: 9, fontFamily: "Helvetica-Bold" },
+  refText: { fontSize: 9, fontFamily: "Helvetica-Bold", color: NAVY },
   title: {
     textAlign: "center",
-    fontSize: 16,
+    fontSize: 20,
     fontFamily: "Helvetica-Bold",
-    marginTop: 24,
-    marginBottom: 20,
+    marginTop: 14,
+    marginBottom: 16,
     textTransform: "uppercase",
-    letterSpacing: 1,
+    letterSpacing: 2,
+    color: NAVY,
   },
-  body: { fontSize: 11.5, lineHeight: 1.7, textAlign: "justify" },
+  bodyWrap: { alignItems: "center" },
+  body: { fontSize: 11, lineHeight: 1.65, textAlign: "justify", width: "78%" },
   bold: { fontFamily: "Helvetica-Bold" },
-  closing: { fontSize: 11, lineHeight: 1.7, textAlign: "justify", marginTop: 16 },
-  dateLine: { fontSize: 11, marginTop: 28 },
-  signatureBlock: { alignItems: "flex-end", marginTop: 36 },
-  signatureLabel: { fontSize: 10.5 },
-  signatureName: { fontSize: 11, fontFamily: "Helvetica-Bold", marginTop: 30 },
-  footer: {
-    position: "absolute",
-    bottom: 40,
-    left: 56,
-    right: 56,
+  closing: { fontSize: 10.5, lineHeight: 1.65, textAlign: "justify", width: "78%", marginTop: 12 },
+  bottomRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
+    marginTop: 26,
   },
-  qr: { width: 70, height: 70 },
-  qrCaption: { fontSize: 7, color: "#6b7280", marginTop: 3, textAlign: "center", width: 70 },
-  verifyUrl: { fontSize: 8, color: "#6b7280" },
+  qrBlock: { alignItems: "center" },
+  qr: { width: 56, height: 56 },
+  qrCaption: { fontSize: 6.5, color: "#6b7280", marginTop: 2, textAlign: "center", width: 62 },
+  verifyUrl: { fontSize: 7, color: "#6b7280", marginTop: 3, textAlign: "center" },
+  dateLine: { fontSize: 10, marginBottom: 6, textAlign: "center" },
+  signatureBlock: { alignItems: "center", width: 150 },
+  signatureLine: {
+    width: 110,
+    borderBottomWidth: 1,
+    borderBottomColor: "#9ca3af",
+    marginTop: 26,
+    marginBottom: 4,
+  },
+  signatureLabel: { fontSize: 10 },
+  signatureName: { fontSize: 11, fontFamily: "Helvetica-Bold" },
+  watermark: {
+    position: "absolute",
+    top: "42%",
+    left: 0,
+    right: 0,
+    textAlign: "center",
+    fontSize: 40,
+    color: "#dc2626",
+    opacity: 0.22,
+    fontFamily: "Helvetica-Bold",
+    transform: "rotate(-22deg)",
+  },
 });
 
 function formatDate(date: Date | string | null | undefined) {
@@ -68,6 +103,7 @@ export type CertificateDocumentProps = {
   trainingDetail: string | null;
   trainingStartDate: Date | string | null;
   trainingEndDate: Date | string | null;
+  instructorName: string | null;
   issuedAt: Date | string;
   qrCodeDataUri: string | null;
   verifyUrl: string;
@@ -86,6 +122,7 @@ export default function CertificateDocument(props: CertificateDocumentProps) {
     trainingDetail,
     trainingStartDate,
     trainingEndDate,
+    instructorName,
     issuedAt,
     qrCodeDataUri,
     verifyUrl,
@@ -98,80 +135,78 @@ export default function CertificateDocument(props: CertificateDocumentProps) {
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
-        {status === "REVOKED" && (
-          <Text
-            style={{
-              position: "absolute",
-              top: 260,
-              left: 0,
-              right: 0,
-              textAlign: "center",
-              fontSize: 46,
-              color: "#dc2626",
-              opacity: 0.25,
-              transform: "rotate(-25deg)",
-              fontFamily: "Helvetica-Bold",
-            }}
-          >
-            ANNULÉ / CANCELLED
-          </Text>
-        )}
+      <Page size="A4" orientation="landscape" style={styles.page}>
+        <View style={styles.outerBorder}>
+          <View style={styles.innerBorder}>
+            {status === "REVOKED" && <Text style={styles.watermark}>ANNULÉ / CANCELLED</Text>}
 
-        {/* eslint-disable-next-line jsx-a11y/alt-text */}
-        <Image src={logoDataUri} style={styles.logo} />
-        <Text style={styles.country}>RÉPUBLIQUE DU TCHAD</Text>
-        <Text style={styles.motto}>UNITÉ – TRAVAIL – PROGRÈS</Text>
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
+            <Image src={logoDataUri} style={styles.logo} />
+            <Text style={styles.country}>RÉPUBLIQUE DU TCHAD</Text>
+            <Text style={styles.motto}>UNITÉ – TRAVAIL – PROGRÈS</Text>
 
-        <Text style={styles.institution}>
-          CENTRE DE FORMATION D&apos;INFORMATIQUE ET D&apos;APPRENTISSAGE DES LANGUES
-        </Text>
-        <Text style={styles.address}>
-          Quartier Amriguébé à 200m de l&apos;Université Roi Fayçal — Tél : (+235) 60 98 48 49 / 90 98 48 49
-        </Text>
-        <Text style={styles.address}>
-          Email : technotchad@gmail.com / contact@technotchad.com — Site Web : www.technotchad.com
-        </Text>
+            <Text style={styles.institution}>
+              CENTRE DE FORMATION D&apos;INFORMATIQUE ET D&apos;APPRENTISSAGE DES LANGUES
+            </Text>
+            <Text style={styles.address}>
+              Quartier Amriguébé à 200m de l&apos;Université Roi Fayçal — Tél : (+235) 60 98 48 49 / 90 98 48 49
+            </Text>
+            <Text style={styles.address}>
+              Email : technotchad@gmail.com / contact@technotchad.com — Site Web : www.technotchad.com
+            </Text>
 
-        <View style={styles.rule} />
+            <View style={styles.rule} />
 
-        <View style={styles.refRow}>
-          <Text style={styles.refText}>N° : {certificateNumber}</Text>
-        </View>
-
-        <Text style={styles.title}>Attestation de Formation</Text>
-
-        <Text style={styles.body}>
-          Je soussigné Mr HASSAN ISMAIL NASSOUR, Directeur Général du Centre de formation d&apos;informatique
-          Et d&apos;apprentissage des langues, atteste que le nommé(e){" "}
-          <Text style={styles.bold}>{studentFullName}</Text>, {bornSuffix} le {formatDate(dateOfBirth)}
-          {placeOfBirth ? ` à ${placeOfBirth}` : ""}, a suivi avec succès la formation en{" "}
-          <Text style={styles.bold}>{programLine}</Text> au sein de notre centre. Du{" "}
-          <Text style={styles.bold}>{formatDate(trainingStartDate)}</Text> au{" "}
-          <Text style={styles.bold}>{formatDate(trainingEndDate)}</Text>. {pronoun} a fini le programme avec
-          succès.
-        </Text>
-
-        <Text style={styles.closing}>
-          En foi de quoi, la présente attestation lui est délivrée pour servir et valoir ce que de droit.
-        </Text>
-
-        <Text style={styles.dateLine}>Fait à N&apos;Djamena, le {formatDate(issuedAt)}.</Text>
-
-        <View style={styles.signatureBlock}>
-          <Text style={styles.signatureLabel}>Le Directeur Général</Text>
-          <Text style={styles.signatureName}>HASSAN ISMAIL NASSOUR</Text>
-        </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.verifyUrl}>{verifyUrl}</Text>
-          {qrCodeDataUri && (
-            <View>
-              {/* eslint-disable-next-line jsx-a11y/alt-text */}
-              <Image src={qrCodeDataUri} style={styles.qr} />
-              <Text style={styles.qrCaption}>Scannez pour vérifier</Text>
+            <View style={styles.refRow}>
+              <Text style={styles.refText}>N° : {certificateNumber}</Text>
             </View>
-          )}
+
+            <Text style={styles.title}>Attestation de Formation</Text>
+
+            <View style={styles.bodyWrap}>
+              <Text style={styles.body}>
+                Je soussigné Mr HASSAN ISMAIL NASSOUR, Directeur Général du Centre de formation
+                d&apos;informatique Et d&apos;apprentissage des langues, atteste que le nommé(e){" "}
+                <Text style={styles.bold}>{studentFullName}</Text>, {bornSuffix} le {formatDate(dateOfBirth)}
+                {placeOfBirth ? ` à ${placeOfBirth}` : ""}, a suivi avec succès la formation en{" "}
+                <Text style={styles.bold}>{programLine}</Text> au sein de notre centre. Du{" "}
+                <Text style={styles.bold}>{formatDate(trainingStartDate)}</Text> au{" "}
+                <Text style={styles.bold}>{formatDate(trainingEndDate)}</Text>. {pronoun} a fini le programme
+                avec succès.
+              </Text>
+
+              <Text style={styles.closing}>
+                En foi de quoi, la présente attestation lui est délivrée pour servir et valoir ce que de
+                droit.
+              </Text>
+            </View>
+
+            <View style={styles.bottomRow}>
+              <View style={styles.signatureBlock}>
+                <Text style={styles.signatureLabel}>Le Formateur</Text>
+                <View style={styles.signatureLine} />
+                {instructorName && <Text style={styles.signatureName}>{instructorName.toUpperCase()}</Text>}
+              </View>
+
+              <View style={styles.qrBlock}>
+                <Text style={styles.dateLine}>Fait à N&apos;Djamena, le {formatDate(issuedAt)}.</Text>
+                {qrCodeDataUri && (
+                  <>
+                    {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                    <Image src={qrCodeDataUri} style={styles.qr} />
+                    <Text style={styles.qrCaption}>Scannez pour vérifier</Text>
+                  </>
+                )}
+                <Text style={styles.verifyUrl}>{verifyUrl}</Text>
+              </View>
+
+              <View style={styles.signatureBlock}>
+                <Text style={styles.signatureLabel}>Le Directeur Général</Text>
+                <View style={styles.signatureLine} />
+                <Text style={styles.signatureName}>HASSAN ISMAIL NASSOUR</Text>
+              </View>
+            </View>
+          </View>
         </View>
       </Page>
     </Document>

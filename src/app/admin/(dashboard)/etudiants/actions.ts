@@ -55,7 +55,7 @@ export async function generateCertificate(registrationId: string) {
     include: {
       certificate: true,
       payments: true,
-      courseSession: { include: { course: true } },
+      courseSession: { include: { course: true, instructor: true } },
       workshop: true,
     },
   });
@@ -86,6 +86,7 @@ export async function generateCertificate(registrationId: string) {
     registration.courseSession?.course.durationLabel ?? registration.workshop?.durationLabel ?? null;
   const trainingStartDate = registration.courseSession?.startDate ?? registration.workshop?.date ?? null;
   const trainingEndDate = registration.courseSession?.endDate ?? null;
+  const instructorName = registration.courseSession?.instructor?.name ?? null;
 
   await prisma.certificate.create({
     data: {
@@ -98,6 +99,7 @@ export async function generateCertificate(registrationId: string) {
       durationLabel,
       trainingStartDate,
       trainingEndDate,
+      instructorName,
       createdById,
     },
   });

@@ -46,7 +46,7 @@ export async function provisionStudentAccount(studentId: string) {
 
   await prisma.student.update({ where: { id: studentId }, data: { userId: user.id } });
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://technotchad.com";
   await sendMail({
     to: student.email,
     subject: "Votre espace étudiant TechnoTchad",

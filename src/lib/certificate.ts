@@ -1,5 +1,5 @@
 export function buildVerifyUrl(certificateNumber: string) {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://technotchad.com";
   return `${base}/verify/${certificateNumber}`;
 }
 
@@ -12,7 +12,7 @@ export function buildInscriptionNumber(year: number, sequence: number) {
 }
 
 export function buildInscriptionVerifyUrl(inscriptionNumber: string) {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://technotchad.com";
   return `${base}/verify-inscription/${inscriptionNumber}`;
 }
 

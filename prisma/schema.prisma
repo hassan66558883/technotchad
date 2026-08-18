@@ -194,6 +194,7 @@ model Certificate {
   durationLabel     String?
   trainingStartDate DateTime?
   trainingEndDate   DateTime?
+  instructorName    String?
 
   createdById       String?
   createdBy         User?    @relation(fields: [createdById], references: [id])

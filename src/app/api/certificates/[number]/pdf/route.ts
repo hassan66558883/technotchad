@@ -31,9 +31,9 @@ export async function GET(
     return NextResponse.json({ error: "Certificat introuvable." }, { status: 404 });
   }
 
-  const logoPath = path.join(process.cwd(), "public", "logo-full.png");
+  const logoPath = path.join(process.cwd(), "src", "assets", "certificate", "logo.jpeg");
   const logoBuffer = await readFile(logoPath);
-  const logoDataUri = `data:image/png;base64,${logoBuffer.toString("base64")}`;
+  const logoDataUri = `data:image/jpeg;base64,${logoBuffer.toString("base64")}`;
 
   const verifyUrl = buildVerifyUrl(certificate.certificateNumber);
   const qrCodeDataUri = await QRCode.toDataURL(verifyUrl, { margin: 1, width: 300 });
@@ -50,6 +50,7 @@ export async function GET(
       trainingDetail: certificate.trainingDetail,
       trainingStartDate: certificate.trainingStartDate,
       trainingEndDate: certificate.trainingEndDate,
+      instructorName: certificate.instructorName,
       issuedAt: certificate.issuedAt,
       qrCodeDataUri,
       verifyUrl,
