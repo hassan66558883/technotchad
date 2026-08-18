@@ -2,11 +2,20 @@
 
 import QRCode from "qrcode";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { buildCertificateNumber, buildInscriptionNumber, buildVerifyUrl } from "@/lib/certificate";
 import { sendMail } from "@/lib/email";
 import { logActivity } from "@/lib/activityLog";
 import { provisionStudentAccount, assignStudentNumber } from "@/lib/studentAccount";
+import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
+
+async function currentUserId() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(SESSION_COOKIE)?.value;
+  const session = token ? await verifySessionToken(token) : null;
+  return session?.sub ?? null;
+}
 
 function str(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
@@ -65,10 +74,18 @@ export async function generateCertificate(registrationId: string) {
 
   const year = new Date().getFullYear();
   const count = await prisma.certificate.count({
-    where: { certificateNumber: { startsWith: `CERT-${year}-` } },
+    where: { certificateNumber: { startsWith: `TT-CERT-${year}-` } },
   });
   const certificateNumber = buildCertificateNumber(year, count + 1);
   const qrCodeUrl = await QRCode.toDataURL(buildVerifyUrl(certificateNumber));
+  const createdById = await currentUserId();
+
+  const programTitle = registration.courseSession?.course.title ?? registration.workshop?.title ?? "—";
+  const trainingDetail = registration.courseSession?.course.description ?? registration.workshop?.description ?? null;
+  const durationLabel =
+    registration.courseSession?.course.durationLabel ?? registration.workshop?.durationLabel ?? null;
+  const trainingStartDate = registration.courseSession?.startDate ?? registration.workshop?.date ?? null;
+  const trainingEndDate = registration.courseSession?.endDate ?? null;
 
   await prisma.certificate.create({
     data: {
@@ -76,6 +93,12 @@ export async function generateCertificate(registrationId: string) {
       studentId: registration.studentId,
       certificateNumber,
       qrCodeUrl,
+      programTitle,
+      trainingDetail,
+      durationLabel,
+      trainingStartDate,
+      trainingEndDate,
+      createdById,
     },
   });
 

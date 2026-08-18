@@ -24,6 +24,7 @@ model User {
   student Student?
   logs    ActivityLog[]
   recordedPayments Payment[]
+  certificatesCreated Certificate[]
 }
 
 model Student {
@@ -171,7 +172,7 @@ model Payment {
   createdAt      DateTime @default(now())
 }
 
-// status: ACTIVE | REVOKED
+// status: ACTIVE | REVOKED (shown publicly as VALID / CANCELLED)
 model Certificate {
   id                String   @id @default(cuid())
   registrationId    String   @unique
@@ -184,6 +185,19 @@ model Certificate {
   status            String   @default("ACTIVE")
   revokedAt         DateTime?
   revokedReason     String?
+  updatedAt         DateTime @updatedAt
+
+  // Snapshot of the training at issuance time — kept stable even if the
+  // course/session is edited or deleted afterwards.
+  programTitle      String
+  trainingDetail    String?
+  durationLabel     String?
+  trainingStartDate DateTime?
+  trainingEndDate   DateTime?
+
+  createdById       String?
+  createdBy         User?    @relation(fields: [createdById], references: [id])
+  regeneratedCount  Int      @default(0)
 }
 
 // --- Public content: services, projects, articles, gallery, testimonials -

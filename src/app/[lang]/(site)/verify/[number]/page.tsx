@@ -41,6 +41,7 @@ export default async function VerifyCertificatePage({
   });
 
   const courseTitle =
+    certificate?.programTitle ??
     certificate?.registration.courseSession?.course.title ??
     certificate?.registration.workshop?.title;
 
@@ -104,11 +105,32 @@ export default async function VerifyCertificatePage({
                   <span className="text-slate">{v.formation}</span>
                   <span className="font-semibold text-navy">{courseTitle}</span>
                 </div>
+                {certificate.durationLabel && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate">{v.duration}</span>
+                    <span className="font-semibold text-navy">{certificate.durationLabel}</span>
+                  </div>
+                )}
+                {(certificate.trainingStartDate || certificate.trainingEndDate) && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate">{v.trainingPeriod}</span>
+                    <span className="font-semibold text-navy">
+                      {certificate.trainingStartDate ? formatDate(certificate.trainingStartDate, lang) : "—"}
+                      {certificate.trainingEndDate
+                        ? ` – ${formatDate(certificate.trainingEndDate, lang)}`
+                        : ""}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
                   <span className="text-slate">{v.issueDate}</span>
                   <span className="font-semibold text-navy">
                     {formatDate(certificate.issuedAt, lang)}
                   </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate">{v.trainingCenter}</span>
+                  <span className="font-semibold text-navy">TechnoTchad</span>
                 </div>
               </div>
 

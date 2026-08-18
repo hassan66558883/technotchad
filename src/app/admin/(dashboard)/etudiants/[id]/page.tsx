@@ -95,6 +95,12 @@ export default async function StudentDetailPage({
                   <p className="text-xs text-slate">
                     Inscrit le {formatDate(reg.registeredAt)} · Statut : {reg.status}
                   </p>
+                  {(reg.courseSession?.startDate ?? reg.workshop?.date) && (
+                    <p className="text-xs text-slate/70">
+                      Formation : du {formatDate(reg.courseSession?.startDate ?? reg.workshop!.date)}
+                      {reg.courseSession?.endDate ? ` au ${formatDate(reg.courseSession.endDate)}` : ""}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -117,6 +123,12 @@ export default async function StudentDetailPage({
                         {reg.certificate.status === "REVOKED" ? "✕" : "✓"} Certificat{" "}
                         {reg.certificate.certificateNumber}
                       </Link>
+                      <a
+                        href={`/api/certificates/${reg.certificate.certificateNumber}/pdf?download=1`}
+                        className="text-xs font-semibold text-blue hover:text-blue-dark"
+                      >
+                        PDF
+                      </a>
                       {reg.certificate.status === "REVOKED" ? (
                         <ReinstateCertificateButton certificateId={reg.certificate.id} />
                       ) : (

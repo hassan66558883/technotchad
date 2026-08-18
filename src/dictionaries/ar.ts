@@ -231,6 +231,9 @@ const ar: typeof fr = {
     certNumber: "رقم الشهادة",
     holder: "صاحب الشهادة",
     formation: "التكوين",
+    duration: "المدة",
+    trainingPeriod: "فترة التكوين",
+    trainingCenter: "مركز التكوين",
     issueDate: "تاريخ الإصدار",
     notFoundTitle: "الشهادة غير موجودة",
     notFoundText: (number: string) =>

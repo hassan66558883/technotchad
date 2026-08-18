@@ -222,6 +222,9 @@ const fr = {
     certNumber: "N° de certificat",
     holder: "Titulaire",
     formation: "Formation",
+    duration: "Durée",
+    trainingPeriod: "Période de formation",
+    trainingCenter: "Centre de formation",
     issueDate: "Date d'émission",
     notFoundTitle: "Certificat introuvable",
     notFoundText: (number: string) =>
