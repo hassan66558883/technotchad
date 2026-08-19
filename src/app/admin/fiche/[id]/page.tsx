@@ -73,34 +73,42 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
         <PrintButton />
       </div>
 
-      <div className="rounded-2xl border border-line bg-white p-10 shadow-sm print:rounded-none print:border-0 print:p-0 print:shadow-none">
-        <header className="flex items-start justify-between border-b-2 border-navy pb-4">
-          <div className="flex flex-col items-center gap-1">
+      <div className="rounded-2xl border border-line bg-white p-10 shadow-sm print:rounded-none print:border-0 print:p-0 print:shadow-none print:text-[10.5px] print:leading-tight">
+        <header className="flex items-start justify-between gap-4 border-b-2 border-navy pb-4 print:pb-2">
+          <div className="flex flex-col items-center gap-1 print:flex-row print:items-center print:gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-full.png" alt="TechnoTchad" className="h-14 w-auto" />
-            <p className="mt-2 text-center text-sm font-semibold text-navy">
+            <img src="/logo-full.png" alt="TechnoTchad" className="h-14 w-auto print:h-10" />
+            <p className="mt-2 text-center text-sm font-semibold text-navy print:mt-0 print:text-left print:text-[11px]">
               Centre de Formation TechnoTchad
             </p>
           </div>
-          <div className="text-right">
-            <h1 className="text-lg font-bold text-navy">FICHE D&apos;INSCRIPTION ÉTUDIANT</h1>
-            <p className="text-xs text-slate">N° {registration.inscriptionNumber ?? "—"}</p>
-            <p className="text-xs text-slate">Date : {formatDate(registration.registeredAt)}</p>
+          <div className="text-right print:text-[10px]">
+            <h1 className="text-lg font-bold text-navy print:text-sm">FICHE D&apos;INSCRIPTION ÉTUDIANT</h1>
+            <p className="text-xs text-slate print:text-[10px]">N° {registration.inscriptionNumber ?? "—"}</p>
+            <p className="text-xs text-slate print:text-[10px]">Date : {formatDate(registration.registeredAt)}</p>
           </div>
+          {qrCodeUrl && (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={qrCodeUrl}
+              alt="QR code de vérification"
+              className="hidden h-16 w-16 shrink-0 print:block"
+            />
+          )}
         </header>
 
         {qrCodeUrl && (
-          <div className="mt-4 flex justify-end">
+          <div className="mt-4 flex justify-end print:hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={qrCodeUrl} alt="QR code de vérification" className="h-24 w-24" />
           </div>
         )}
 
-        <section className="mt-6">
-          <h2 className="rounded bg-mist px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-navy print:bg-transparent print:border print:border-navy">
+        <section className="mt-6 print:mt-2">
+          <h2 className="rounded bg-mist px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-navy print:border print:border-navy print:bg-transparent print:px-2 print:py-0.5 print:text-[9px]">
             1. Informations personnelles
           </h2>
-          <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+          <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm print:mt-1.5 print:gap-x-4 print:gap-y-0.5">
             <Field label="Matricule étudiant" value={student.studentNumber ?? "—"} />
             <Field label="Nom complet" value={`${student.firstName} ${student.lastName}`} />
             <Field label="Date de naissance" value={formatDate(student.dateOfBirth)} />
@@ -112,11 +120,11 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
           </dl>
         </section>
 
-        <section className="mt-6">
-          <h2 className="rounded bg-mist px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-navy print:bg-transparent print:border print:border-navy">
+        <section className="mt-6 print:mt-2">
+          <h2 className="rounded bg-mist px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-navy print:border print:border-navy print:bg-transparent print:px-2 print:py-0.5 print:text-[9px]">
             2. Informations académiques / professionnelles
           </h2>
-          <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+          <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm print:mt-1.5 print:gap-x-4 print:gap-y-0.5">
             <Field label="Niveau d'études" value={student.educationLevel ?? "—"} />
             <Field label="Dernier diplôme" value={student.lastDiploma ?? "—"} />
             <Field label="Établissement" value={student.institution ?? "—"} />
@@ -124,21 +132,21 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
           </dl>
         </section>
 
-        <section className="mt-6">
-          <h2 className="rounded bg-mist px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-navy print:bg-transparent print:border print:border-navy">
+        <section className="mt-6 print:mt-2">
+          <h2 className="rounded bg-mist px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-navy print:border print:border-navy print:bg-transparent print:px-2 print:py-0.5 print:text-[9px]">
             3. Formation choisie
           </h2>
-          <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+          <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm print:mt-1.5 print:gap-x-4 print:gap-y-0.5">
             <Field label="Formation" value={formationTitle} full />
             <Field label="Niveau" value={registration.level ?? "—"} />
           </dl>
         </section>
 
-        <section className="mt-6">
-          <h2 className="rounded bg-mist px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-navy print:bg-transparent print:border print:border-navy">
+        <section className="mt-6 print:mt-2">
+          <h2 className="rounded bg-mist px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-navy print:border print:border-navy print:bg-transparent print:px-2 print:py-0.5 print:text-[9px]">
             4. Logistique & paiement
           </h2>
-          <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+          <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm print:mt-1.5 print:gap-x-4 print:gap-y-0.5">
             <Field label="Mode de formation" value={registration.trainingMode ?? "—"} />
             <Field
               label="Remise"
@@ -164,27 +172,29 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
           </div>
 
           {registration.payments.length > 0 && (
-            <div className="mt-4 overflow-hidden rounded-lg border border-line print:border-navy">
-              <table className="w-full text-left text-xs">
+            <div className="mt-4 overflow-hidden rounded-lg border border-line print:mt-1.5 print:border-navy">
+              <table className="w-full text-left text-xs print:text-[8.5px]">
                 <thead>
                   <tr className="bg-mist text-slate print:bg-transparent">
-                    <th className="px-3 py-2 font-semibold">Reçu</th>
-                    <th className="px-3 py-2 font-semibold">Date</th>
-                    <th className="px-3 py-2 font-semibold">Montant</th>
-                    <th className="px-3 py-2 font-semibold">Méthode</th>
-                    <th className="px-3 py-2 font-semibold">Statut</th>
-                    <th className="px-3 py-2 font-semibold">Note</th>
+                    <th className="px-3 py-2 font-semibold print:px-1.5 print:py-0.5">Reçu</th>
+                    <th className="px-3 py-2 font-semibold print:px-1.5 print:py-0.5">Date</th>
+                    <th className="px-3 py-2 font-semibold print:px-1.5 print:py-0.5">Montant</th>
+                    <th className="px-3 py-2 font-semibold print:px-1.5 print:py-0.5">Méthode</th>
+                    <th className="px-3 py-2 font-semibold print:px-1.5 print:py-0.5">Statut</th>
+                    <th className="px-3 py-2 font-semibold print:px-1.5 print:py-0.5">Note</th>
                   </tr>
                 </thead>
                 <tbody>
                   {registration.payments.map((p) => (
                     <tr key={p.id} className="border-t border-line">
-                      <td className="px-3 py-2 font-mono">{p.reference ?? "—"}</td>
-                      <td className="px-3 py-2">{formatDate(p.paidAt)}</td>
-                      <td className="px-3 py-2 font-semibold">{formatMoney(p.amount)}</td>
-                      <td className="px-3 py-2">{p.method}</td>
-                      <td className="px-3 py-2">{p.status}</td>
-                      <td className="px-3 py-2">{p.note ?? "—"}</td>
+                      <td className="px-3 py-2 font-mono print:px-1.5 print:py-0.5">{p.reference ?? "—"}</td>
+                      <td className="px-3 py-2 print:px-1.5 print:py-0.5">{formatDate(p.paidAt)}</td>
+                      <td className="px-3 py-2 font-semibold print:px-1.5 print:py-0.5">
+                        {formatMoney(p.amount)}
+                      </td>
+                      <td className="px-3 py-2 print:px-1.5 print:py-0.5">{p.method}</td>
+                      <td className="px-3 py-2 print:px-1.5 print:py-0.5">{p.status}</td>
+                      <td className="px-3 py-2 print:px-1.5 print:py-0.5">{p.note ?? "—"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -200,39 +210,39 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
           </Link>
         </section>
 
-        <section className="mt-6">
-          <h2 className="rounded bg-mist px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-navy print:bg-transparent print:border print:border-navy">
+        <section className="mt-6 print:mt-2">
+          <h2 className="rounded bg-mist px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-navy print:border print:border-navy print:bg-transparent print:px-2 print:py-0.5 print:text-[9px]">
             5. Personne à contacter en cas d&apos;urgence
           </h2>
-          <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+          <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm print:mt-1.5 print:gap-x-4 print:gap-y-0.5">
             <Field label="Nom complet" value={student.emergencyContactName ?? "—"} />
             <Field label="Lien de parenté" value={student.emergencyContactRelation ?? "—"} />
             <Field label="Téléphone" value={student.emergencyContactPhone ?? "—"} full />
           </dl>
         </section>
 
-        <section className="mt-6">
-          <h2 className="rounded bg-mist px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-navy print:bg-transparent print:border print:border-navy">
+        <section className="mt-6 print:mt-2">
+          <h2 className="rounded bg-mist px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-navy print:border print:border-navy print:bg-transparent print:px-2 print:py-0.5 print:text-[9px]">
             6. Pièces fournies
           </h2>
-          <p className="mt-3 text-sm text-ink/80">
+          <p className="mt-3 text-sm text-ink/80 print:mt-1.5 print:text-[10px]">
             {registration.documentsProvided || "—"}
           </p>
         </section>
 
-        <section className="mt-8 text-sm">
-          <p className="text-ink/80">
+        <section className="mt-8 text-sm print:mt-3">
+          <p className="text-ink/80 print:text-[10px]">
             Je soussigné(e) <strong>{student.firstName} {student.lastName}</strong>, certifie l&apos;exactitude
             des informations fournies ci-dessus et m&apos;engage à respecter le règlement intérieur de
             TechnoTchad.
           </p>
-          <div className="mt-10 flex justify-between text-xs text-slate">
+          <div className="mt-10 flex justify-between text-xs text-slate print:mt-4 print:text-[9px]">
             <div>
-              <p className="mb-10">Signature de l&apos;étudiant(e)</p>
+              <p className="mb-10 print:mb-4">Signature de l&apos;étudiant(e)</p>
               <p className="border-t border-line pt-1">Date : ______________</p>
             </div>
             <div>
-              <p className="mb-10">Signature & cachet TechnoTchad</p>
+              <p className="mb-10 print:mb-4">Signature & cachet TechnoTchad</p>
               <p className="border-t border-line pt-1">Date : ______________</p>
             </div>
           </div>
@@ -245,8 +255,8 @@ export default async function FichePage({ params }: PageProps<"/admin/fiche/[id]
 function Field({ label, value, full }: { label: string; value: string; full?: boolean }) {
   return (
     <div className={full ? "col-span-2" : undefined}>
-      <dt className="text-xs uppercase tracking-wide text-slate">{label}</dt>
-      <dd className="font-medium text-navy">{value}</dd>
+      <dt className="text-xs uppercase tracking-wide text-slate print:text-[8px]">{label}</dt>
+      <dd className="font-medium text-navy print:text-[10px]">{value}</dd>
     </div>
   );
 }
