@@ -26,9 +26,73 @@ if (!globalForPrisma.pgPool) {
 
 const adapter = new PrismaPg(pool);
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
+const basePrisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
 
 if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
+  globalForPrisma.prisma = basePrisma;
   globalForPrisma.pgPool = pool;
 }
+
+// Retry transient connection failures (e.g. a brief network blip between the
+// build/server host and the hosted Postgres) for read operations only.
+// Mutations are never retried here: if the write actually reached the server
+// before the connection dropped, blindly retrying could create a duplicate
+// record (double payment, double certificate, etc).
+const RETRYABLE_READ_OPERATIONS = new Set([
+  "findUnique",
+  "findUniqueOrThrow",
+  "findFirst",
+  "findFirstOrThrow",
+  "findMany",
+  "count",
+  "aggregate",
+  "groupBy",
+]);
+
+const RETRYABLE_ERROR_CODES = new Set(["P1001", "P1002", "P1008", "P1017"]);
+const RETRYABLE_ERROR_PATTERNS = [
+  "connection terminated",
+  "econnreset",
+  "etimedout",
+  "failed to connect to upstream database",
+  "connection timeout",
+];
+
+function isRetryableError(error: unknown) {
+  const code = (error as { code?: string } | undefined)?.code;
+  if (code && RETRYABLE_ERROR_CODES.has(code)) return true;
+  const message = (error instanceof Error ? error.message : String(error)).toLowerCase();
+  return RETRYABLE_ERROR_PATTERNS.some((pattern) => message.includes(pattern));
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+const MAX_ATTEMPTS = 3;
+
+export const prisma = basePrisma.$extends({
+  query: {
+    $allModels: {
+      async $allOperations({ operation, args, query }) {
+        if (!RETRYABLE_READ_OPERATIONS.has(operation)) return query(args);
+
+        let lastError: unknown;
+        for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+          try {
+            return await query(args);
+          } catch (error) {
+            lastError = error;
+            if (attempt === MAX_ATTEMPTS || !isRetryableError(error)) throw error;
+            console.error(
+              `[prisma] retrying ${operation} after transient error (attempt ${attempt}/${MAX_ATTEMPTS}):`,
+              error instanceof Error ? error.message : error,
+            );
+            await delay(300 * 2 ** (attempt - 1));
+          }
+        }
+        throw lastError;
+      },
+    },
+  },
+});
