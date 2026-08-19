@@ -74,15 +74,9 @@ export default async function EditWorkshopPage({
           <option value="COMPLETED">Terminé</option>
           <option value="CANCELLED">Annulé</option>
         </select>
-        <label className="flex items-center gap-2 text-sm text-ink">
-          <input
-            type="checkbox"
-            name="requiresFullPayment"
-            defaultChecked={workshop.requiresFullPayment}
-            className="h-4 w-4 rounded border-line"
-          />
-          Paiement intégral requis avant émission du certificat
-        </label>
+        <p className="text-xs text-slate/60">
+          Le paiement intégral est requis avant l&apos;émission du certificat pour tous les workshops.
+        </p>
         <button
           type="submit"
           className="rounded-full bg-blue px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-dark"

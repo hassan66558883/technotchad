@@ -140,11 +140,6 @@ export default async function StudentDetailPage({
                       Confirmez l&apos;inscription pour émettre un certificat
                     </span>
                   ) : (() => {
-                    const requiresFullPayment =
-                      reg.courseSession?.course.requiresFullPayment ??
-                      reg.workshop?.requiresFullPayment ??
-                      false;
-                    if (!requiresFullPayment) return <GenerateCertificateButton registrationId={reg.id} />;
                     const paid = reg.payments
                       .filter((p) => p.status === "PAID")
                       .reduce((sum, p) => sum + p.amount, 0);

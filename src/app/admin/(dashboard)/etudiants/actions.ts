@@ -62,15 +62,12 @@ export async function generateCertificate(registrationId: string) {
 
   if (!registration || registration.certificate) return;
 
-  const requiresFullPayment =
-    registration.courseSession?.course.requiresFullPayment ?? registration.workshop?.requiresFullPayment ?? false;
-  if (requiresFullPayment) {
-    const paid = registration.payments
-      .filter((p) => p.status === "PAID")
-      .reduce((sum, p) => sum + p.amount, 0);
-    const remaining = (registration.paymentAmount ?? 0) - paid;
-    if (remaining > 0) return;
-  }
+  // Full payment is required before certificate issuance, for every course and workshop.
+  const paid = registration.payments
+    .filter((p) => p.status === "PAID")
+    .reduce((sum, p) => sum + p.amount, 0);
+  const remaining = (registration.paymentAmount ?? 0) - paid;
+  if (remaining > 0) return;
 
   const year = new Date().getFullYear();
   const count = await prisma.certificate.count({
