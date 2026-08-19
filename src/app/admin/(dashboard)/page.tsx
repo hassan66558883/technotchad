@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
+import { MIN_STUDENTS_TO_START } from "@/lib/enrollment";
 
 const statusLabels: Record<string, string> = {
   PENDING: "En attente",
@@ -46,6 +47,8 @@ export default async function AdminDashboardPage({
     serviceCount,
     softwareCount,
     registrations,
+    upcomingSessions,
+    upcomingWorkshops,
   ] = await Promise.all([
     prisma.quoteRequest.count(),
     prisma.student.count(),
@@ -63,7 +66,36 @@ export default async function AdminDashboardPage({
         workshop: true,
       },
     }),
+    prisma.courseSession.findMany({
+      where: { status: "UPCOMING" },
+      include: { course: true, registrations: { where: { status: "CONFIRMED" }, select: { id: true } } },
+    }),
+    prisma.workshop.findMany({
+      where: { status: "UPCOMING" },
+      include: { registrations: { where: { status: "CONFIRMED" }, select: { id: true } } },
+    }),
   ]);
+
+  const lowEnrollment = [
+    ...upcomingSessions
+      .filter((s) => s.registrations.length < MIN_STUDENTS_TO_START)
+      .map((s) => ({
+        key: `session-${s.id}`,
+        title: s.course.title,
+        date: s.startDate,
+        confirmed: s.registrations.length,
+        href: "/admin/formations",
+      })),
+    ...upcomingWorkshops
+      .filter((w) => w.registrations.length < MIN_STUDENTS_TO_START)
+      .map((w) => ({
+        key: `workshop-${w.slug}`,
+        title: w.title,
+        date: w.date,
+        confirmed: w.registrations.length,
+        href: "/admin/workshops",
+      })),
+  ].sort((a, b) => a.date.getTime() - b.date.getTime());
 
   const statCards = [
     { label: "Étudiants", value: studentCount, icon: "🎓", href: "/admin/etudiants" },
@@ -80,6 +112,25 @@ export default async function AdminDashboardPage({
       {denied && (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-3.5 text-sm text-amber-800">
           Vous n&apos;avez pas accès à cette section avec votre rôle actuel.
+        </div>
+      )}
+
+      {lowEnrollment.length > 0 && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
+          <h2 className="text-sm font-semibold text-amber-900">
+            ⚠ {lowEnrollment.length} session{lowEnrollment.length > 1 ? "s" : ""} en dessous du minimum de{" "}
+            {MIN_STUDENTS_TO_START} étudiants
+          </h2>
+          <ul className="mt-2 space-y-1">
+            {lowEnrollment.map((item) => (
+              <li key={item.key} className="text-sm text-amber-800">
+                <Link href={item.href} className="font-semibold hover:underline">
+                  {item.title}
+                </Link>{" "}
+                — {formatDate(item.date)} · {item.confirmed}/{MIN_STUDENTS_TO_START} confirmés
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

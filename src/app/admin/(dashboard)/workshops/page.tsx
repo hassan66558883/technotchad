@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { createWorkshop, deleteWorkshop } from "./actions";
 import DeleteButton from "@/components/admin/DeleteButton";
+import { MIN_STUDENTS_TO_START } from "@/lib/enrollment";
 
 export const metadata = { title: "Workshops — Admin TechnoTchad" };
 export const dynamic = "force-dynamic";
@@ -11,7 +12,10 @@ function formatDate(date: Date) {
 }
 
 export default async function AdminWorkshopsPage() {
-  const workshops = await prisma.workshop.findMany({ orderBy: { date: "asc" } });
+  const workshops = await prisma.workshop.findMany({
+    orderBy: { date: "asc" },
+    include: { registrations: { where: { status: "CONFIRMED" }, select: { id: true } } },
+  });
 
   return (
     <div className="space-y-6">
@@ -97,6 +101,16 @@ export default async function AdminWorkshopsPage() {
             <p className="mt-3 text-xs text-slate/70">
               {formatDate(workshop.date)} · {workshop.schedule} · {workshop.durationLabel} · {workshop.seats} places
             </p>
+            {workshop.status === "UPCOMING" &&
+              (workshop.registrations.length < MIN_STUDENTS_TO_START ? (
+                <span className="mt-2 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                  ⚠ {workshop.registrations.length}/{MIN_STUDENTS_TO_START} confirmés — minimum non atteint
+                </span>
+              ) : (
+                <span className="mt-2 inline-block text-xs text-slate/70">
+                  {workshop.registrations.length} confirmés
+                </span>
+              ))}
             <div className="mt-4 flex items-center justify-between">
               <Link
                 href={`/admin/workshops/${workshop.slug}/edit`}

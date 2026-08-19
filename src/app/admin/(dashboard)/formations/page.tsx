@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { createCourse, deleteCourse, createSession, deleteSession } from "./actions";
 import DeleteButton from "@/components/admin/DeleteButton";
+import { MIN_STUDENTS_TO_START } from "@/lib/enrollment";
 
 export const metadata = { title: "Formations — Admin TechnoTchad" };
 export const dynamic = "force-dynamic";
@@ -14,7 +15,15 @@ export default async function AdminFormationsPage() {
   const [courses, instructors] = await Promise.all([
     prisma.course.findMany({
       orderBy: { title: "asc" },
-      include: { sessions: { orderBy: { startDate: "asc" }, include: { instructor: true } } },
+      include: {
+        sessions: {
+          orderBy: { startDate: "asc" },
+          include: {
+            instructor: true,
+            registrations: { where: { status: "CONFIRMED" }, select: { id: true } },
+          },
+        },
+      },
     }),
     prisma.instructor.findMany({ orderBy: { name: "asc" } }),
   ]);
@@ -136,6 +145,17 @@ export default async function AdminFormationsPage() {
                       >
                         {session.status}
                       </span>
+                      {session.status === "UPCOMING" &&
+                        (session.registrations.length < MIN_STUDENTS_TO_START ? (
+                          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                            ⚠ {session.registrations.length}/{MIN_STUDENTS_TO_START} confirmés — minimum non
+                            atteint
+                          </span>
+                        ) : (
+                          <span className="text-xs text-slate/70">
+                            {session.registrations.length} confirmés
+                          </span>
+                        ))}
                     </div>
                     <div className="flex items-center gap-3">
                       <Link
