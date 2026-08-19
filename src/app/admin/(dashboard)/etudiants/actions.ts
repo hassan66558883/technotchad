@@ -162,6 +162,21 @@ export async function reinstateCertificate(certificateId: string) {
   revalidatePath("/admin/certificats");
 }
 
+export async function findStudentByContact(phone: string, email: string) {
+  const normalizedPhone = phone.trim();
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!normalizedPhone && !normalizedEmail) return null;
+
+  return prisma.student.findFirst({
+    where: {
+      OR: [
+        normalizedEmail ? { email: normalizedEmail } : undefined,
+        normalizedPhone ? { phone: normalizedPhone } : undefined,
+      ].filter((clause): clause is NonNullable<typeof clause> => Boolean(clause)),
+    },
+  });
+}
+
 export type CreateStudentState = { error?: string } | undefined;
 
 export async function createStudent(
