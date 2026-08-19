@@ -2,7 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { createWorkshop, deleteWorkshop } from "./actions";
 import DeleteButton from "@/components/admin/DeleteButton";
-import { MIN_STUDENTS_TO_START } from "@/lib/enrollment";
+import { MIN_STUDENTS_TO_START, isEnrollmentUrgent } from "@/lib/enrollment";
 
 export const metadata = { title: "Workshops — Admin TechnoTchad" };
 export const dynamic = "force-dynamic";
@@ -103,8 +103,13 @@ export default async function AdminWorkshopsPage() {
             </p>
             {workshop.status === "UPCOMING" &&
               (workshop.registrations.length < MIN_STUDENTS_TO_START ? (
-                <span className="mt-2 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
-                  ⚠ {workshop.registrations.length}/{MIN_STUDENTS_TO_START} confirmés — minimum non atteint
+                <span
+                  className={`mt-2 inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+                    isEnrollmentUrgent(workshop.date) ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-800"
+                  }`}
+                >
+                  {isEnrollmentUrgent(workshop.date) ? "🔴" : "⚠"} {workshop.registrations.length}/
+                  {MIN_STUDENTS_TO_START} confirmés — minimum non atteint
                 </span>
               ) : (
                 <span className="mt-2 inline-block text-xs text-slate/70">

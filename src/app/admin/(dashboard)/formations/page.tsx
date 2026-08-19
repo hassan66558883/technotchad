@@ -2,7 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { createCourse, deleteCourse, createSession, deleteSession } from "./actions";
 import DeleteButton from "@/components/admin/DeleteButton";
-import { MIN_STUDENTS_TO_START } from "@/lib/enrollment";
+import { MIN_STUDENTS_TO_START, isEnrollmentUrgent } from "@/lib/enrollment";
 
 export const metadata = { title: "Formations — Admin TechnoTchad" };
 export const dynamic = "force-dynamic";
@@ -147,9 +147,15 @@ export default async function AdminFormationsPage() {
                       </span>
                       {session.status === "UPCOMING" &&
                         (session.registrations.length < MIN_STUDENTS_TO_START ? (
-                          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
-                            ⚠ {session.registrations.length}/{MIN_STUDENTS_TO_START} confirmés — minimum non
-                            atteint
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                              isEnrollmentUrgent(session.startDate)
+                                ? "bg-red-100 text-red-700"
+                                : "bg-amber-100 text-amber-800"
+                            }`}
+                          >
+                            {isEnrollmentUrgent(session.startDate) ? "🔴" : "⚠"} {session.registrations.length}/
+                            {MIN_STUDENTS_TO_START} confirmés — minimum non atteint
                           </span>
                         ) : (
                           <span className="text-xs text-slate/70">
