@@ -5,6 +5,7 @@ import GenerateCertificateButton from "@/components/admin/GenerateCertificateBut
 import RevokeCertificateButton from "@/components/admin/RevokeCertificateButton";
 import ReinstateCertificateButton from "@/components/admin/ReinstateCertificateButton";
 import GrantPortalAccessButton from "@/components/admin/GrantPortalAccessButton";
+import { getStudentStatus, studentStatusLabels, studentStatusStyles } from "@/lib/studentStatus";
 
 export const dynamic = "force-dynamic";
 
@@ -52,9 +53,21 @@ export default async function StudentDetailPage({
               {student.lastName[0]}
             </span>
             <div>
-              <h1 className="text-lg font-semibold text-navy">
-                {student.firstName} {student.lastName}
-              </h1>
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-lg font-semibold text-navy">
+                  {student.firstName} {student.lastName}
+                </h1>
+                {(() => {
+                  const status = getStudentStatus(student.registrations.length);
+                  return (
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${studentStatusStyles[status]}`}
+                    >
+                      {studentStatusLabels[status]}
+                    </span>
+                  );
+                })()}
+              </div>
               <p className="text-sm text-slate">
                 {student.phone} · {student.email}
               </p>

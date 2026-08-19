@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { parsePriceToNumber } from "@/lib/format";
 import CreateStudentForm from "@/components/admin/CreateStudentForm";
+import { getStudentStatus, studentStatusLabels, studentStatusStyles } from "@/lib/studentStatus";
 
 export const metadata = { title: "Étudiants — Admin TechnoTchad" };
 export const dynamic = "force-dynamic";
@@ -15,8 +16,9 @@ export default async function EtudiantsPage({
 }: PageProps<"/admin/etudiants">) {
   const params = await searchParams;
   const q = typeof params.q === "string" ? params.q.trim() : "";
+  const statut = typeof params.statut === "string" ? params.statut : "";
 
-  const [students, sessions, workshops] = await Promise.all([
+  const [allStudents, sessions, workshops] = await Promise.all([
     prisma.student.findMany({
       where: q
         ? {
@@ -43,6 +45,11 @@ export default async function EtudiantsPage({
     }),
   ]);
 
+  const students = allStudents.filter((student) => {
+    if (!statut) return true;
+    return getStudentStatus(student.registrations.length) === statut;
+  });
+
   const enrollmentOptions = [
     ...sessions.map((s) => ({
       value: `course:${s.id}`,
@@ -68,7 +75,7 @@ export default async function EtudiantsPage({
 
       <CreateStudentForm enrollmentOptions={enrollmentOptions} />
 
-      <form className="flex gap-3">
+      <form className="flex flex-wrap gap-3">
         <input
           type="search"
           name="q"
@@ -76,7 +83,22 @@ export default async function EtudiantsPage({
           placeholder="Rechercher un étudiant (nom, email, téléphone, matricule)"
           className="w-full max-w-sm rounded-full border border-line bg-white px-4 py-2 text-sm outline-none focus:border-blue"
         />
-        {q && (
+        <select
+          name="statut"
+          defaultValue={statut}
+          className="rounded-full border border-line bg-white px-4 py-2 text-sm outline-none focus:border-blue"
+        >
+          <option value="">Tous les étudiants</option>
+          <option value="NOUVEAU">Nouveaux</option>
+          <option value="ANCIEN">Anciens</option>
+        </select>
+        <button
+          type="submit"
+          className="rounded-full bg-blue px-4 py-2 text-sm font-semibold text-white hover:bg-blue-dark"
+        >
+          Filtrer
+        </button>
+        {(q || statut) && (
           <Link
             href="/admin/etudiants"
             className="rounded-full border border-line px-4 py-2 text-xs font-semibold text-slate hover:border-blue hover:text-blue"
@@ -103,32 +125,43 @@ export default async function EtudiantsPage({
                   <th className="px-6 py-3 font-semibold">Matricule</th>
                   <th className="px-6 py-3 font-semibold">Nom</th>
                   <th className="px-6 py-3 font-semibold">Contact</th>
+                  <th className="px-6 py-3 font-semibold">Statut</th>
                   <th className="px-6 py-3 font-semibold">Inscriptions</th>
                   <th className="px-6 py-3 font-semibold">Certificats</th>
                 </tr>
               </thead>
               <tbody>
-                {students.map((student) => (
-                  <tr key={student.id} className="border-t border-line">
-                    <td className="px-6 py-3.5 font-mono text-xs text-slate">
-                      {student.studentNumber ?? "—"}
-                    </td>
-                    <td className="px-6 py-3.5 font-medium text-navy">
-                      <Link href={`/admin/etudiants/${student.id}`} className="hover:text-blue">
-                        {student.firstName} {student.lastName}
-                      </Link>
-                    </td>
-                    <td className="px-6 py-3.5 text-ink/80">
-                      {student.phone} · {student.email}
-                    </td>
-                    <td className="px-6 py-3.5 text-ink/80">
-                      {student.registrations.length}
-                    </td>
-                    <td className="px-6 py-3.5 text-ink/80">
-                      {student.certificates.length}
-                    </td>
-                  </tr>
-                ))}
+                {students.map((student) => {
+                  const status = getStudentStatus(student.registrations.length);
+                  return (
+                    <tr key={student.id} className="border-t border-line">
+                      <td className="px-6 py-3.5 font-mono text-xs text-slate">
+                        {student.studentNumber ?? "—"}
+                      </td>
+                      <td className="px-6 py-3.5 font-medium text-navy">
+                        <Link href={`/admin/etudiants/${student.id}`} className="hover:text-blue">
+                          {student.firstName} {student.lastName}
+                        </Link>
+                      </td>
+                      <td className="px-6 py-3.5 text-ink/80">
+                        {student.phone} · {student.email}
+                      </td>
+                      <td className="px-6 py-3.5">
+                        <span
+                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${studentStatusStyles[status]}`}
+                        >
+                          {studentStatusLabels[status]}
+                        </span>
+                      </td>
+                      <td className="px-6 py-3.5 text-ink/80">
+                        {student.registrations.length}
+                      </td>
+                      <td className="px-6 py-3.5 text-ink/80">
+                        {student.certificates.length}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
