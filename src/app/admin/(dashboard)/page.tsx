@@ -118,16 +118,16 @@ export default async function AdminDashboardPage({
       {lowEnrollment.length > 0 && (() => {
         const urgentCount = lowEnrollment.filter((item) => isEnrollmentUrgent(item.date)).length;
         return (
-          <div
-            className={`rounded-2xl border px-5 py-4 ${
-              urgentCount > 0 ? "border-red-200 bg-red-50" : "border-amber-200 bg-amber-50"
-            }`}
-          >
-            <h2 className={`text-sm font-semibold ${urgentCount > 0 ? "text-red-900" : "text-amber-900"}`}>
-              {urgentCount > 0 ? "🔴" : "⚠"} {lowEnrollment.length} session
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
+            <h2 className="text-sm font-semibold text-amber-900">
+              ⚠ {lowEnrollment.length} session
               {lowEnrollment.length > 1 ? "s" : ""} en dessous du minimum de {MIN_STUDENTS_TO_START} étudiants
-              {urgentCount > 0 &&
-                ` — ${urgentCount} à moins de ${URGENT_THRESHOLD_DAYS} jours du début`}
+              {urgentCount > 0 && (
+                <span className="text-red-700">
+                  {" "}
+                  — {urgentCount} à moins de {URGENT_THRESHOLD_DAYS} jours du début
+                </span>
+              )}
             </h2>
             <ul className="mt-2 space-y-1">
               {lowEnrollment.map((item) => {
