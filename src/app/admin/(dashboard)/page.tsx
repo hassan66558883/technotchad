@@ -76,9 +76,11 @@ export default async function AdminDashboardPage({
     }),
   ]);
 
+  // Only notify for sessions actually starting soon and still under the
+  // minimum — not every session ever scheduled, which could be months out.
   const lowEnrollment = [
     ...upcomingSessions
-      .filter((s) => s.registrations.length < MIN_STUDENTS_TO_START)
+      .filter((s) => s.registrations.length < MIN_STUDENTS_TO_START && isEnrollmentUrgent(s.startDate))
       .map((s) => ({
         key: `session-${s.id}`,
         title: s.course.title,
@@ -87,7 +89,7 @@ export default async function AdminDashboardPage({
         href: "/admin/formations",
       })),
     ...upcomingWorkshops
-      .filter((w) => w.registrations.length < MIN_STUDENTS_TO_START)
+      .filter((w) => w.registrations.length < MIN_STUDENTS_TO_START && isEnrollmentUrgent(w.date))
       .map((w) => ({
         key: `workshop-${w.slug}`,
         title: w.title,
@@ -115,43 +117,33 @@ export default async function AdminDashboardPage({
         </div>
       )}
 
-      {lowEnrollment.length > 0 && (() => {
-        const urgentCount = lowEnrollment.filter((item) => isEnrollmentUrgent(item.date)).length;
-        return (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
-            <h2 className="text-sm font-semibold text-amber-900">
-              ⚠ {lowEnrollment.length} session
-              {lowEnrollment.length > 1 ? "s" : ""} en dessous du minimum de {MIN_STUDENTS_TO_START} étudiants
-              {urgentCount > 0 && (
-                <span className="text-red-700">
-                  {" "}
-                  — {urgentCount} à moins de {URGENT_THRESHOLD_DAYS} jours du début
-                </span>
-              )}
-            </h2>
-            <ul className="mt-2 space-y-1">
-              {lowEnrollment.map((item) => {
-                const urgent = isEnrollmentUrgent(item.date);
-                const days = daysUntil(item.date);
-                const daysLabel =
-                  days < 0
-                    ? `débuté il y a ${Math.abs(days)} j`
-                    : days === 0
-                      ? "débute aujourd'hui"
-                      : `dans ${days} j`;
-                return (
-                  <li key={item.key} className={`text-sm ${urgent ? "text-red-800" : "text-amber-800"}`}>
-                    <Link href={item.href} className="font-semibold hover:underline">
-                      {item.title}
-                    </Link>{" "}
-                    — {formatDate(item.date)} ({daysLabel}) · {item.confirmed}/{MIN_STUDENTS_TO_START} confirmés
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        );
-      })()}
+      {lowEnrollment.length > 0 && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4">
+          <h2 className="text-sm font-semibold text-red-900">
+            🔴 {lowEnrollment.length} session{lowEnrollment.length > 1 ? "s" : ""} à moins de{" "}
+            {URGENT_THRESHOLD_DAYS} jours du début, en dessous du minimum de {MIN_STUDENTS_TO_START} étudiants
+          </h2>
+          <ul className="mt-2 space-y-1">
+            {lowEnrollment.map((item) => {
+              const days = daysUntil(item.date);
+              const daysLabel =
+                days < 0
+                  ? `débuté il y a ${Math.abs(days)} j`
+                  : days === 0
+                    ? "débute aujourd'hui"
+                    : `dans ${days} j`;
+              return (
+                <li key={item.key} className="text-sm text-red-800">
+                  <Link href={item.href} className="font-semibold hover:underline">
+                    {item.title}
+                  </Link>{" "}
+                  — {formatDate(item.date)} ({daysLabel}) · {item.confirmed}/{MIN_STUDENTS_TO_START} confirmés
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {statCards.map((card) => {
