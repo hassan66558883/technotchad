@@ -6,6 +6,9 @@ import { getSettings, splitLines, ABOUT_SETTING_KEYS } from "@/lib/settings";
 import { getDictionary } from "@/dictionaries";
 import { isLocale } from "@/i18n/config";
 
+// See src/app/[lang]/(site)/page.tsx for why this is set explicitly.
+export const revalidate = 300;
+
 export async function generateMetadata({ params }: PageProps<"/[lang]/a-propos">) {
   const { lang } = await params;
   if (!isLocale(lang)) return {};

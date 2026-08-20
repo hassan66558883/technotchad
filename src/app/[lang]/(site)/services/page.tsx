@@ -7,6 +7,9 @@ import { getDictionary } from "@/dictionaries";
 import { isLocale } from "@/i18n/config";
 import { localeHref } from "@/lib/locale-link";
 
+// See src/app/[lang]/(site)/page.tsx for why this is set explicitly.
+export const revalidate = 300;
+
 export async function generateMetadata({ params }: PageProps<"/[lang]/services">) {
   const { lang } = await params;
   if (!isLocale(lang)) return {};

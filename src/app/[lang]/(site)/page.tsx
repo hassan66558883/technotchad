@@ -14,6 +14,12 @@ import Testimonials from "@/components/home/Testimonials";
 import OurSoftware from "@/components/home/OurSoftware";
 import ContactCta from "@/components/home/ContactCta";
 
+// Bounds how long Hostinger's CDN can serve stale HTML after a deploy — it
+// doesn't purge its cache on redeploy, so a page with no revalidate window
+// gets stuck for up to a year referencing JS chunk files the next build
+// deletes. See formations/page.tsx, which already had this set correctly.
+export const revalidate = 300;
+
 export async function generateMetadata({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!isLocale(lang)) return {};

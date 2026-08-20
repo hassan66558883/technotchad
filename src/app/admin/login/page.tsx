@@ -2,6 +2,12 @@ import Image from "next/image";
 import LoginForm from "@/components/admin/LoginForm";
 
 export const metadata = { title: "Connexion — Admin TechnoTchad" };
+// Every other /admin/* page is force-dynamic. This one was left as static,
+// which let Hostinger's CDN cache it for up to a year (s-maxage default)
+// with no invalidation on deploy — after any redeploy it kept serving old
+// HTML referencing JS chunk files the new build had already deleted,
+// breaking client-side navigation to/from the login page.
+export const dynamic = "force-dynamic";
 
 export default function AdminLoginPage() {
   return (
